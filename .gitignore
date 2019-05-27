@@ -1,0 +1,10 @@
+
+# package directories
+/node_modules
+
+# Webpack directories
+.webpack
+/webpack.config.js
+
+.env
+.env.development
