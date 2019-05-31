@@ -9,19 +9,16 @@ import {
 } from 'typeorm';
 import { User } from './User';
 
-@Entity('user_profile', { synchronize: true })
-export class UserProfile extends BaseEntity {
+@Entity('user_token', { synchronize: true })
+export class UserToken extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column('varchar', { nullable: true, length: 255 })
-  thumbnail!: string;
+  @Column('uuid')
+  token_id!: string;
 
-  @Column('varchar', { nullable: true, length: 255 })
-  mobile!: string;
-
-  @Column('text', { nullable: true })
-  about!: string;
+  @Column({ default: false })
+  faulty!: boolean;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
@@ -29,6 +26,6 @@ export class UserProfile extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
-  @OneToOne(() => User, user => user.userprofiles)
+  @OneToOne(() => User, user => user.usertoken, { onDelete: 'CASCADE' })
   user!: User;
 }
