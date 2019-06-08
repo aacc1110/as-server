@@ -3,40 +3,62 @@ import { IResolvers } from 'graphql-tools';
 import bcrypt from 'bcryptjs';
 
 import { User } from '../../entity/User';
-import { tokenCreate } from '../../lib/authToken';
+import { tokenCreate, deleteTokens } from '../../lib/authToken';
+import { UserProfile } from '../../entity/UserProfile';
+import { getRepository } from 'typeorm';
 
 export const resolvers: IResolvers = {
   Query: {
     me: async (_, __, ctx: Context) => {
-      if (!ctx.body.userId) {
-        return null;
-      }
-      return User.findOne(ctx.body.userId);
+      if (!ctx.userId) return null;
+      return User.findOne(ctx.userId, { relations: ['posts'] });
+    },
+    user: async (_, id) => {
+      /* if (!ctx.userId) return null; */
+      console.log('id', id);
+      return User.findOne(id, { relations: ['posts'] });
     }
   },
   Mutation: {
-    logout: async (_, __, ctx: Context) => {
-      if (ctx.body.userId) {
-        ctx.body = {
-          userId: null
+    createMe: async (_, args) => {
+      try {
+        let user = new User();
+        user = {
+          ...args.user
         };
+        if (args.userprofile) {
+          user.userprofile = { ...args.userprofile };
+        }
+        await User.create(user).save();
+      } catch (err) {
+        console.error(err);
+        return false;
       }
-      ctx.cookies.set('access-token', undefined, {
-        domain: process.env.NODE_ENV === 'development' ? undefined : ''
-      });
-      ctx.cookies.set('refresh-token', undefined, {
-        domain: process.env.NODE_ENV === 'development' ? undefined : ''
-      });
-      ctx.status = 204;
       return true;
     },
-    register: async (_, { email, name, password }) => {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await User.create({
-        email,
-        name,
-        password: hashedPassword
-      }).save();
+    updateMe: async (_, args, ctx: Context) => {
+      try {
+        let user = new User();
+        user.name = args.name;
+        if (args.userprofile) {
+          let userprofile = new UserProfile();
+          userprofile.mobile = args.mobile;
+          userprofile.about = args.about;
+          userprofile.thumbnail = args.thumbnail;
+          user.userprofile = userprofile;
+        }
+        await getRepository(User).save(user);
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+      return true;
+    },
+    deleteMe: async (_, id, ctx: Context) => {
+      if (id !== ctx.userId) return false;
+      deleteTokens(ctx);
+      ctx.status = 204;
+      await User.delete(id);
       return true;
     },
     login: async (_, { email, password }, ctx: Context) => {
@@ -48,13 +70,18 @@ export const resolvers: IResolvers = {
       if (!valid) {
         return null;
       }
-      ctx.body = {
-        userId: user.id
-      };
+      /*       ctx.userId = user.id; */
 
       tokenCreate(ctx, user);
 
       return user;
+    },
+    logout: async (_, __, ctx: Context) => {
+      if (ctx.userId) {
+        ctx.userId = null;
+      }
+      deleteTokens(ctx);
+      return true;
     }
   }
 };

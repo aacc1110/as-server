@@ -7,9 +7,11 @@ import {
   UpdateDateColumn,
   OneToMany,
   OneToOne,
-  JoinColumn,
-  Index
+  Index,
+  BeforeInsert
 } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
+
 import { UserProfile } from './UserProfile';
 import { UserToken } from './UserToken';
 import { Post } from './Post';
@@ -20,18 +22,14 @@ export class User extends BaseEntity {
   id!: string;
 
   @Index()
-  @Column('varchar', { length: 255 })
+  @Column('varchar', { unique: true, length: 255 })
   email!: string;
 
-  @Index()
-  @Column('varchar', { length: 255, nullable: true })
+  @Column('varchar', { nullable: true, length: 255 })
   name!: string;
 
   @Column('varchar', { length: 255 })
   password!: string;
-
-  @Column('boolean', { default: false })
-  admin!: boolean;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
@@ -39,14 +37,23 @@ export class User extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
-  @OneToOne(() => UserProfile, userprofile => userprofile.user)
-  @JoinColumn()
-  userprofiles!: UserProfile;
+  @OneToOne(() => UserProfile, userprofile => userprofile.user, {
+    eager: true,
+    cascade: true
+  })
+  userprofile!: UserProfile;
 
-  @OneToOne(() => UserToken, usertoken => usertoken.user)
-  @JoinColumn()
+  @OneToOne(() => UserToken, usertoken => usertoken.user, {
+    eager: true,
+    cascade: true
+  })
   usertoken!: UserToken;
 
-  @OneToMany(() => Post, post => post.user)
+  @OneToMany(() => Post, post => post.user, { cascade: true })
   posts!: Post[];
+
+  @BeforeInsert()
+  async hashedPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 }

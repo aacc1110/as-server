@@ -5,7 +5,8 @@ import {
   BaseEntity,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne
+  OneToOne,
+  JoinColumn
 } from 'typeorm';
 import { User } from './User';
 
@@ -23,12 +24,19 @@ export class UserProfile extends BaseEntity {
   @Column('text', { nullable: true })
   about!: string;
 
+  @Column('varchar', { nullable: true, length: 255 })
+  image_url!: string;
+
+  @Column('boolean', { default: false })
+  admin!: boolean;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
-  @OneToOne(() => User, user => user.userprofiles)
+  @OneToOne(() => User, user => user.userprofile, { onDelete: 'CASCADE' })
+  @JoinColumn()
   user!: User;
 }

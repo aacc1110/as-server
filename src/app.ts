@@ -1,4 +1,4 @@
-/* import 'reflect-metadata'; */
+import 'reflect-metadata';
 import Koa, { Context } from 'koa';
 import bodyParser from 'koa-bodyparser';
 import logger from 'koa-logger';
@@ -33,29 +33,23 @@ const startServer = async () => { */
 const server = new ApolloServer({
   schema,
   rootValue: true,
-  context: async ({ ctx }: Context) => {
-    /*     try {
-          if (ctx.body.userId) {
-            console.log('ApolloServerctx.body.userId', ctx.body.userId);
-            return {
-              userId: ctx.body.userId
-            };
-          }
-        } catch (e) {
-          console.error(e);
-        } */
+  formatError: error => {
+    console.log(error);
+    return error;
+  },
+  context: ({ ctx }: Context) => {
     return ctx;
   },
   tracing: process.env.NODE_ENV === 'development'
 });
 
 server.applyMiddleware({
-  app,
   cors: {
     credentials: true,
     origin: 'http://localhost:3005',
     allowHeaders: ['Content-Type', 'Authorization']
-  }
+  },
+  app
 });
 
 async function connectDB() {

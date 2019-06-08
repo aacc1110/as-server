@@ -8,6 +8,7 @@
 		"bcryptjs": "^2.4.3",
 		"dotenv": "^8.0.0",
 		"graphql": "^14.3.1",
+		"graphql-tools": "^4.0.4",
 		"jsonwebtoken": "^8.5.1",
 		"koa": "^2.7.0",
 		"koa-bodyparser": "^4.2.1",
@@ -17,12 +18,13 @@
 		"koa-router": "^7.4.0",
 		"pg": "^7.11.0",
 		"reflect-metadata": "^0.1.13",
-		"typeorm": "^0.2.17"
+		"typeorm": "^0.3.0-alpha.23"
 	},
 	"devDependencies": {
 		"@types/bcryptjs": "^2.4.2",
 		"@types/dotenv": "^6.1.1",
 		"@types/graphql": "^14.2.0",
+		"@types/jest": "^24.0.13",
 		"@types/jsonwebtoken": "^8.3.2",
 		"@types/koa": "^2.0.48",
 		"@types/koa-bodyparser": "^4.3.0",
@@ -32,20 +34,39 @@
 		"@types/node": "^12.0.2",
 		"@typescript-eslint/eslint-plugin": "^1.9.0",
 		"@typescript-eslint/parser": "^1.9.0",
+		"apollo": "^2.12.5",
 		"cross-env": "^5.2.0",
 		"eslint": "^5.16.0",
 		"eslint-config-prettier": "^4.3.0",
 		"eslint-plugin-import": "^2.17.3",
 		"eslint-plugin-node": "^9.1.0",
 		"eslint-plugin-prettier": "^3.1.0",
+		"jest": "^24.8.0",
+		"joi": "^14.3.1",
 		"prettier": "^1.17.1",
 		"prettier-eslint": "^8.8.2",
 		"ts-loader": "^6.0.1",
 		"ts-node": "^8.2.0",
 		"ts-node-dev": "^1.0.0-pre.39",
-		"typescript": "^3.4.5"
+		"typescript": "^3.5.1"
 	},
 	"scripts": {
-		"dev": "cross-env NODE_ENV=development ts-node-dev --respawn ./src/server.ts"
+		"dev": "cross-env NODE_ENV=development ts-node-dev --respawn ./src/server.ts",
+		"test": "jest --watch"
+	},
+	"jest": {
+		"globalSetup": "./src/__test__/callSetup.js",
+		"transform": {
+			"^.+\\.tsx?$": "ts-jest"
+		},
+		"testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+		"moduleFileExtensions": [
+			"ts",
+			"tsx",
+			"js",
+			"jsx",
+			"json",
+			"node"
+		]
 	}
 }

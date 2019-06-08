@@ -5,7 +5,8 @@ import {
   BaseEntity,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne
+  OneToOne,
+  JoinColumn
 } from 'typeorm';
 import { User } from './User';
 
@@ -27,5 +28,6 @@ export class UserToken extends BaseEntity {
   updatedAt!: Date;
 
   @OneToOne(() => User, user => user.usertoken, { onDelete: 'CASCADE' })
+  @JoinColumn()
   user!: User;
 }

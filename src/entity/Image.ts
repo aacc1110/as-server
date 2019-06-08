@@ -6,18 +6,19 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-  ManyToMany
+  ManyToOne
 } from 'typeorm';
+
 import { Post } from './Post';
 
-@Entity('tags', { synchronize: true })
-export class Tag extends BaseEntity {
+@Entity('images', { synchronize: true })
+export class Image extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Index()
   @Column('varchar', { length: 255, nullable: true })
-  tag!: string;
+  image_url!: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
@@ -25,6 +26,6 @@ export class Tag extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
-  @ManyToMany(() => Post, posts => posts.tags)
-  posts!: Post[];
+  @ManyToOne(() => Post, post => post.images, { onDelete: 'CASCADE' })
+  posts!: Post;
 }

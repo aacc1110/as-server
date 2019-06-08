@@ -22,12 +22,22 @@ type RefreshTokenData = {
   userId: string;
 } & TokenData;
 
+export const deleteTokens = (ctx: any) => {
+  ctx.cookies.set('access-token', undefined, {
+    domain: process.env.NODE_ENV === 'development' ? undefined : ''
+  });
+  ctx.cookies.set('refresh-token', undefined, {
+    domain: process.env.NODE_ENV === 'development' ? undefined : ''
+  });
+  ctx.status = 204;
+};
+
 export const createTokens = (user: User) => {
   if (!JWT_ACCESSKEY || !JWT_REFRESHKEY) return;
 
   const refreshToken = sign({ userId: user.id }, JWT_REFRESHKEY);
 
-  const accessToken = sign({ userId: user.id, email: user.email, name: user.name }, JWT_ACCESSKEY);
+  const accessToken = sign({ email: user.email, name: user.name, userId: user.id }, JWT_ACCESSKEY);
 
   return { refreshToken, accessToken };
 };
@@ -54,9 +64,7 @@ export const setTokenCookie: Middleware = async (ctx: Context, next) => {
   if (accessToken) {
     try {
       let decodeToken = verify(accessToken, JWT_ACCESSKEY) as any;
-      ctx.body = {
-        userId: decodeToken.userId
-      };
+      ctx.userId = decodeToken.userId;
     } catch (e) {
       console.error(e);
     }
@@ -77,11 +85,9 @@ export const setTokenCookie: Middleware = async (ctx: Context, next) => {
         domain: process.env.NODE_ENV === 'development' ? undefined : ''
       });
 
-      ctx.body = {
-        userId: decodeToken.userId
-      };
+      ctx.userId = decodeToken.userId;
 
-      console.log('ctx.body.userId', ctx.body.userId);
+      console.log('ctx.userId', ctx.userId);
     } catch (e) {
       console.error(e);
     }

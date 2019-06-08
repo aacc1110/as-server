@@ -5,19 +5,22 @@ import {
   BaseEntity,
   CreateDateColumn,
   UpdateDateColumn,
-  Index,
-  ManyToMany
+  ManyToOne,
+  JoinColumn
 } from 'typeorm';
+
 import { Post } from './Post';
 
-@Entity('tags', { synchronize: true })
-export class Tag extends BaseEntity {
+@Entity('comments', { synchronize: true })
+export class Comment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Index()
-  @Column('varchar', { length: 255, nullable: true })
-  tag!: string;
+  @Column('text', { nullable: true })
+  comment!: string;
+
+  @Column('int', { default: 0 })
+  level!: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
@@ -25,6 +28,7 @@ export class Tag extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
-  @ManyToMany(() => Post, posts => posts.tags)
-  posts!: Post[];
+  @ManyToOne(() => Post, posts => posts.comments, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  posts!: Post;
 }
