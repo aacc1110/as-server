@@ -6,14 +6,20 @@ export const typeDef = gql`
     email: String!
     name: String
     password: String
-    userprofile: UserProfile!
+    userprofile: UserProfile
+    usertoken: UserToken!
     posts: [Post!]
   }
   type UserProfile {
     id: ID!
-    thumbnail: String
     about: String
+    thumbnail: String
     mobile: String
+  }
+  type UserToken {
+    id: ID!
+    token_id: String
+    faulty: Boolean
   }
   input UserInput {
     email: String
@@ -29,12 +35,17 @@ export const typeDef = gql`
   extend type Query {
     me: User
     user(id: ID!): User!
+    users: [User!]!
   }
   extend type Mutation {
     createMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
-    updateMe(name: String!, userprofile: UserProfileInput): Boolean!
+    updateMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     deleteMe(id: ID!): Boolean!
-    login(email: String!, password: String!): User!
-    logout: Boolean!
+    login(email: String!, password: String!): LoginResponse!
+    logout: Boolean
+  }
+  type LoginResponse {
+    accessToken: String
+    user: User!
   }
 `;

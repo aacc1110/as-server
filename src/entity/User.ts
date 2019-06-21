@@ -15,6 +15,7 @@ import * as bcrypt from 'bcryptjs';
 import { UserProfile } from './UserProfile';
 import { UserToken } from './UserToken';
 import { Post } from './Post';
+import { Comment } from './Comment';
 
 @Entity('users', { synchronize: true })
 export class User extends BaseEntity {
@@ -44,16 +45,18 @@ export class User extends BaseEntity {
   userprofile!: UserProfile;
 
   @OneToOne(() => UserToken, usertoken => usertoken.user, {
-    eager: true,
     cascade: true
   })
-  usertoken!: UserToken;
+  usertoken!: Promise<UserToken>;
 
   @OneToMany(() => Post, post => post.user, { cascade: true })
   posts!: Post[];
 
+  @OneToMany(() => Comment, comment => comment.user, { cascade: true })
+  comments!: Promise<Comment[]>;
+
   @BeforeInsert()
-  async hashedPassword() {
+  async hashedPasswordInsert() {
     this.password = await bcrypt.hash(this.password, 10);
   }
 }

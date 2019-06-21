@@ -1,19 +1,34 @@
 import { IResolvers } from 'graphql-tools';
+import 'apollo-cache-control';
 import { getConnection, getRepository } from 'typeorm';
 
 import { Post } from '../../entity/Post';
-import { Context } from 'koa';
 import { Tag } from '../../entity/Tag';
 import { Image } from '../../entity/Image';
 import { Comment } from '../../entity/Comment';
 
 export const resolvers: IResolvers = {
+  /* Post: {
+    user: ({ user }, __, { loader }) => {
+      return loader.load(user.id);
+    },
+
+    tags: ({ tags }, __, { tagLoader }) => {
+      return tagLoader.load(tags.tag);
+    }
+  }, */
   Query: {
     post: async (_, id) => {
       return await Post.findOne(id);
     },
     posts: async () => {
-      return await Post.find();
+      /* info.cacheControl.setCacheHint({ maxAge: 300 }); */
+      return await Post.find({
+        /*   take: limit, */
+        order: {
+          createdAt: 'ASC'
+        }
+      });
     },
     tag: async (_, tag) => {
       const posts = await getRepository(Tag)
@@ -29,84 +44,77 @@ export const resolvers: IResolvers = {
     }
   },
   Mutation: {
-    postWrite: async (_, { title, body, tags, image_urls }, ctx: Context) => {
-      if (!ctx.userId) return false;
+    writePost: async (_, { title, body, tags, image_urls }, { userId, redis }) => {
+      if (!userId) return false;
+      console.log('WritePost - tags', tags);
       const post = new Post();
-      post.user = ctx.userId;
+      post.user = userId;
       post.title = title;
       post.body = body;
       if (tags) {
         post.tags = await Promise.all(tags.map((tag: any) => Tag.create({ tag }).save()));
       }
-
       if (image_urls) {
         post.images = await Promise.all(
           image_urls.map((image_url: any) => Image.create({ image_url }).save())
         );
       }
-
       await getRepository(Post).save(post);
+
+      await redis.lpush('PostList', JSON.stringify(post));
 
       return true;
     },
-    postUpdate: async (_, { id, title, body, tags }, ctx: Context) => {
-      if (!ctx.userId) return false;
+    updatePost: async (_, { id, title, body, tags }, { userId }) => {
+      if (!userId) return false;
       const post = await Post.create({
-        user: ctx.userId,
+        user: userId,
         id,
         title,
         body
       }).save();
-      if (tags) {
-        const tagAll = await Promise.all(tags.map((tag: any) => Tag.create({ tag }).save()));
 
-        await getConnection()
-          .createQueryBuilder()
-          .relation(Post, 'tags')
-          .of(post)
-          .add(tagAll);
+      if (tags) {
+        const delTag = await Tag.find({ posts: { id } });
+        if (delTag.length > 0) {
+          console.log('delTag', delTag);
+          console.log('delTag', delTag.length);
+          await Tag.remove(delTag);
+        }
+        tags = await Promise.all(tags.map((tag: any) => Tag.create({ tag }).save()));
       }
+      await getConnection()
+        .createQueryBuilder()
+        .relation(Post, 'tags')
+        .of(post)
+        .add(tags);
 
       return true;
     },
-    postDelete: async (_, id) => {
+    deletePost: async (_, id, { userId }) => {
+      if (!userId) return false;
       const tags = await getRepository(Tag).find({
         where: {
-          posts: [id]
+          posts: id
         }
       });
       console.log('tags', tags);
-
-      /* await Promise.all(tags.map(tag => Tag.delete(tag.id))); */
       const post = await Post.delete(id);
       await getConnection()
         .createQueryBuilder()
         .relation(Post, 'tags')
         .of(post)
         .remove(Promise.all(tags.map(tag => Tag.delete(tag.id))));
-
-      /* await getRepository(Post)
-        .createQueryBuilder('post')
-        .leftJoinAndSelect('post.tags', 'tags')
-        .relation(Post, 'tags')
-        .delete()
-        .where(id)
-        .execute(); */
-      /* 
-            await Post.createQueryBuilder()
-              .relation(Post, 'tags')
-              .delete()
-              .where(id)
-              .execute(); */
       return true;
     },
-    commentWrite: async (_, { postId, comment, level }) => {
-      if (!postId) return false;
+    writeComment: async (_, { postId, comment, level }, { userId }) => {
+      if (!userId || !postId) return false;
 
       const comments = new Comment();
       comments.comment = comment;
       comments.level = level;
       comments.posts = postId;
+      comments.user = userId;
 
       console.log('comments', comments);
 

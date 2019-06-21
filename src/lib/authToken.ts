@@ -2,27 +2,11 @@ import { Context, Middleware } from 'koa';
 import { sign, verify } from 'jsonwebtoken';
 
 import { User } from '../entity/User';
+import { UserToken } from '../entity/UserToken';
 
 const { JWT_ACCESSKEY, JWT_REFRESHKEY } = process.env;
 
-interface TokenData {
-  iat: number;
-  exp: number;
-  sub: string;
-  iss: string;
-}
-
-type AccessTokenData = {
-  userId: string;
-  email: string;
-  name: string;
-} & TokenData;
-
-type RefreshTokenData = {
-  userId: string;
-} & TokenData;
-
-export const deleteTokens = (ctx: any) => {
+export const deleteTokens = (ctx: Context) => {
   ctx.cookies.set('access-token', undefined, {
     domain: process.env.NODE_ENV === 'development' ? undefined : ''
   });
@@ -32,62 +16,83 @@ export const deleteTokens = (ctx: any) => {
   ctx.status = 204;
 };
 
-export const createTokens = (user: User) => {
+export const createTokens = (user: User, tokenId: string) => {
   if (!JWT_ACCESSKEY || !JWT_REFRESHKEY) return;
 
-  const refreshToken = sign({ userId: user.id }, JWT_REFRESHKEY);
+  const accessToken = sign({ pdi: user.name }, JWT_ACCESSKEY, {
+    audience: user.email,
+    expiresIn: '30min',
+    jwtid: user.id
+  });
 
-  const accessToken = sign({ email: user.email, name: user.name, userId: user.id }, JWT_ACCESSKEY);
+  const refreshToken = sign({ tokenId }, JWT_REFRESHKEY, {
+    expiresIn: '50min',
+    jwtid: user.id
+  });
 
   return { refreshToken, accessToken };
 };
 
-export function tokenCreate(ctx: Context, user: any) {
-  const { refreshToken, accessToken }: any = createTokens(user);
+export const setTokens = (ctx: Context, token: { user: User; tokenId: string }) => {
+  const { accessToken, refreshToken }: any = createTokens(token.user, token.tokenId);
+
   ctx.cookies.set('access-token', accessToken, {
-    httpOnly: true,
-    maxAge: 1000 * 60 * 1,
+    maxAge: 1000 * 60 * 30,
     domain: process.env.NODE_ENV === 'development' ? undefined : ''
   });
 
   ctx.cookies.set('refresh-token', refreshToken, {
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 5,
+    maxAge: 1000 * 60 * 50,
     domain: process.env.NODE_ENV === 'development' ? undefined : ''
   });
-}
-export const setTokenCookie: Middleware = async (ctx: Context, next) => {
+};
+export const checkToken: Middleware = async (ctx, next) => {
   if (!JWT_ACCESSKEY || !JWT_REFRESHKEY) return;
-  let accessToken = ctx.cookies.get('access-token');
-  let refreshToken = ctx.cookies.get('refresh-token');
+  const access: string | undefined = ctx.cookies.get('access-token');
+  const refresh: string | undefined = ctx.cookies.get('refresh-token');
 
-  if (accessToken) {
+  if (access) {
     try {
-      let decodeToken = verify(accessToken, JWT_ACCESSKEY) as any;
-      ctx.userId = decodeToken.userId;
+      let decodeToken = verify(access, JWT_ACCESSKEY) as any;
+      ctx.state.userId = decodeToken.jti;
+      console.log('ctx.state.userId ACCESS', ctx.state.userId);
     } catch (e) {
       console.error(e);
     }
     return next();
   }
 
-  if (!accessToken && refreshToken) {
+  if (!access && refresh) {
     try {
-      let decodeToken = verify(refreshToken, JWT_REFRESHKEY) as any;
+      let decodeToken = verify(refresh, JWT_REFRESHKEY) as any;
+      ctx.state.userId = decodeToken.jti;
+      console.log('ctx.state.userId REFRESH', ctx.state.userId);
 
-      const user: any = await User.findOne(decodeToken.userId);
+      const userToken: any = await UserToken.findOne({ userId: decodeToken.jti });
+      if (!userToken || userToken.tokenId !== decodeToken.tokenId) {
+        let count = userToken.faultyCount;
+        await UserToken.update({ userId: decodeToken.jti }, { faultyCount: count + 1 });
+        deleteTokens(ctx);
+        return next();
+      }
 
-      const { accessToken }: any = createTokens(user);
+      const user: any = await User.findOne(decodeToken.jti);
+      if (!user) return false;
+
+      const { accessToken, refreshToken }: any = createTokens(user, userToken.tokenId);
 
       ctx.cookies.set('access-token', accessToken, {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 1,
+        maxAge: 1000 * 60 * 30,
         domain: process.env.NODE_ENV === 'development' ? undefined : ''
       });
 
-      ctx.userId = decodeToken.userId;
-
-      console.log('ctx.userId', ctx.userId);
+      const diff = decodeToken.exp * 1000 - new Date().getTime();
+      if (diff < 1000 * 60 * 40 && refresh) {
+        ctx.cookies.set('refresh-token', refreshToken, {
+          maxAge: 1000 * 60 * 50,
+          domain: process.env.NODE_ENV === 'development' ? undefined : ''
+        });
+      }
     } catch (e) {
       console.error(e);
     }

@@ -26,7 +26,7 @@ export class Post extends BaseEntity {
   title!: string;
 
   @Index()
-  @Column('varchar', { length: 255, nullable: true })
+  @Column('text', { nullable: true })
   body!: string;
 
   @Column('boolean', { default: false, nullable: true })

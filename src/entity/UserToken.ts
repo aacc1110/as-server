@@ -15,11 +15,11 @@ export class UserToken extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column('uuid')
-  token_id!: string;
+  @Column('uuid', { nullable: true })
+  tokenId!: string;
 
-  @Column({ default: false })
-  faulty!: boolean;
+  @Column('int', { default: 0 })
+  faultyCount!: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
@@ -27,6 +27,8 @@ export class UserToken extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
+  @Column('uuid', { nullable: true })
+  userId!: string;
   @OneToOne(() => User, user => user.usertoken, { onDelete: 'CASCADE' })
   @JoinColumn()
   user!: User;

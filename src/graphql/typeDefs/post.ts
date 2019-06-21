@@ -15,9 +15,9 @@ export const typeDef = gql`
     createdAt: Date
 
     user: User!
-    tags: [Tag]!
-    images: [Image]!
-    comments: [Comment]!
+    tags: [Tag]
+    images: [Image]
+    comments: [Comment]
   }
   type Tag {
     id: ID!
@@ -38,15 +38,15 @@ export const typeDef = gql`
 
   extend type Query {
     post(id: ID!): Post!
-    posts: [Post]!
+    posts(cursor: ID, limit: Int): [Post]!
     tag(tag: String): [Tag]
     tags: [Tag]!
   }
 
   extend type Mutation {
-    postWrite(title: String!, body: String!, tags: [String], image_urls: [String]): Boolean!
-    postUpdate(id: ID!, title: String!, body: String, tags: [String]): Boolean!
-    postDelete(id: ID!): Boolean!
-    commentWrite(postId: ID!, comment: String!, level: Int): Boolean!
+    writePost(title: String!, body: String!, tags: [String], image_urls: [String]): Boolean!
+    updatePost(id: ID!, title: String, body: String, tags: [String]): Boolean!
+    deletePost(id: ID!): Boolean!
+    writeComment(postId: ID!, comment: String!, level: Int): Boolean!
   }
 `;

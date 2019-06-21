@@ -21,7 +21,9 @@ const resolvers: IResolvers = {
   Query: {
     _version: () => '0.1'
   },
-  Mutation: {},
+  Mutation: {
+    _empty: () => ''
+  },
   Date: DateScalar
 };
 
@@ -29,7 +31,6 @@ const schema = makeExecutableSchema({
   typeDefs: [typeDef, userT.typeDef, postT.typeDef],
   resolvers: [resolvers, userR.resolvers, postR.resolvers]
 });
-
 /* addMockFunctionsToSchema({ schema }); */
 
 export default schema;

@@ -1,66 +1,90 @@
 import 'reflect-metadata';
-import Koa, { Context } from 'koa';
+import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import logger from 'koa-logger';
-/* import cookie from 'koa-cookie'; */
 import { ApolloServer } from 'apollo-server-koa';
 import { createConnection } from 'typeorm';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
 
+import { redis } from './redis';
 import schema from './graphql/schema';
 import routes from './routes';
-import { setTokenCookie } from './lib/authToken';
+import { checkToken } from './lib/authToken';
 
 const app = new Koa();
 
-/* setup middlewares */
-app.use(bodyParser());
-app.use(setTokenCookie);
-/* app.use(cookie()); */
-app.use(routes.routes()).use(routes.allowedMethods());
-if (process.env.NODE_ENV === 'development') {
-  app.use(logger());
-}
-
-/* app.use(async (ctx, next) => {
-  ctx.set('Access-Control-Allow-Origin', '*');
-  ctx.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  ctx.set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
-  await next();
-}); */
-
-/* 
-const startServer = async () => { */
-const server = new ApolloServer({
-  schema,
-  rootValue: true,
-  formatError: error => {
-    console.log(error);
-    return error;
-  },
-  context: ({ ctx }: Context) => {
-    return ctx;
-  },
-  tracing: process.env.NODE_ENV === 'development'
-});
-
-server.applyMiddleware({
-  cors: {
-    credentials: true,
-    origin: 'http://localhost:3005',
-    allowHeaders: ['Content-Type', 'Authorization']
-  },
-  app
-});
-
+const { REDIS_URL, NODE_ENV } = process.env;
 async function connectDB() {
   try {
     await createConnection();
-    console.log('Postgres RDBMS connection is Success');
+    console.log('🚀 Postgres RDBMS connection is Success');
   } catch (e) {
     console.error(e);
   }
 }
 connectDB();
-/* };
-startServer(); */
+
+export const startSver = async () => {
+  /* setup middlewares */
+  if (NODE_ENV === 'development') {
+    app.use(logger());
+  }
+  app.use(bodyParser());
+  app.use(checkToken);
+
+  app.use(routes.routes()).use(routes.allowedMethods());
+
+  const pubsub = new RedisPubSub(
+    NODE_ENV === 'production'
+      ? {
+          connection: REDIS_URL as any
+        }
+      : {}
+  );
+
+  const server = new ApolloServer({
+    schema,
+    rootValue: true,
+    /* cacheControl: {
+      defaultMaxAge: 5
+    }, */
+    context: ({ ctx }) => ({
+      ctx,
+      redis,
+      userId: ctx.state.userId,
+      /* loader: loader(),
+      tagLoader: tagLoader() */
+      pubsub
+    }),
+    tracing: NODE_ENV === 'development'
+  });
+
+  server.applyMiddleware({
+    cors: {
+      credentials: true,
+      origin: 'http://localhost:3005',
+      allowHeaders: ['Content-Type', 'Authorization']
+    },
+    app
+  });
+  // clear cache
+  /* await redis.del('PostList'); */
+
+  // fill cache
+  /* function myRedis() {
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        const posts = await Post.find();
+        const postStrings = posts.map(post => JSON.stringify(post));
+        if (postStrings.length) {
+          await redis.lpush('PostList', ...postStrings);
+        }
+        console.log(await redis.lrange('PostList', 0, -1));
+      }, 300);
+    }).catch(err => {
+      console.error(err);
+    });
+  }
+  myRedis(); */
+};
 export default app;
