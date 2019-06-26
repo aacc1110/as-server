@@ -38,7 +38,7 @@ export const typeDef = gql`
 
   extend type Query {
     post(id: ID!): Post!
-    posts(cursor: ID, limit: Int): [Post]!
+    posts: [Post]!
     tag(tag: String): [Tag]
     tags: [Tag]!
   }
