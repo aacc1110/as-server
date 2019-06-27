@@ -19,11 +19,13 @@
 		"koa-cookie": "^1.0.0",
 		"koa-logger": "^3.2.0",
 		"koa-router": "^7.4.0",
+		"merge-graphql-schemas": "^1.5.8",
 		"pg": "^7.11.0",
 		"reflect-metadata": "^0.1.13",
 		"remove": "^0.1.5",
 		"typeorm": "^0.3.0-alpha.23",
-		"uuid": "^3.3.2"
+		"uuid": "^3.3.2",
+		"webpack": "^4.35.0"
 	},
 	"devDependencies": {
 		"@types/bcryptjs": "^2.4.2",

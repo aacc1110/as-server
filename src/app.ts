@@ -62,7 +62,7 @@ export const startSver = async () => {
   server.applyMiddleware({
     cors: {
       credentials: true,
-      origin: 'http://localhost:3005',
+      origin: 'http://localhost:3000',
       allowHeaders: ['Content-Type', 'Authorization']
     },
     app
