@@ -6,6 +6,10 @@ import { User } from '../../entity/User';
 import { setTokens, deleteTokens } from '../../lib/authToken';
 import { UserProfile } from '../../entity/UserProfile';
 import { UserToken } from '../../entity/UserToken';
+import sendEmail from '../../lib/sendEmail';
+import { createAuthEmail } from '../../lib/emailTemplate';
+import { UserEmailConfirm } from '../../entity/UserEmailConfirm';
+import shortid from 'shortid';
 
 export const resolvers: IResolvers = {
   Query: {
@@ -22,6 +26,21 @@ export const resolvers: IResolvers = {
     }
   },
   Mutation: {
+    sendEmail: async (_, { email }) => {
+      const userEmailConfirm = new UserEmailConfirm();
+      userEmailConfirm.code = shortid.generate();
+      userEmailConfirm.email = email;
+      await userEmailConfirm.save();
+      const emailTemplate = createAuthEmail('register', userEmailConfirm.code);
+
+      await sendEmail({
+        to: email,
+        ...emailTemplate,
+        from: 'tadrow@daum.net'
+      });
+      console.log('email', email);
+      return true;
+    },
     createMe: async (_, args) => {
       try {
         let user = new User();

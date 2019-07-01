@@ -38,6 +38,7 @@ export const typeDef = gql`
     users: [User!]!
   }
   extend type Mutation {
+    sendEmail(email: String!): Boolean!
     createMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     updateMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     deleteMe(id: ID!): Boolean!

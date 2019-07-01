@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add -D @types/merge=graphql-schemas
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add import AS-ERD.drawio node_modules package.json src tsconfig.json yarn.lock yarn-error.log as nodemailer from nodemailer
 
 PATH: 
   C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\aacc1\bin;C:\Python27;C:\Python27\Scripts;C:\ProgramData\Boxstarter;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\Git\cmd;C:\ProgramData\chocolatey\bin;C:\composer;C:\Bitnami\wampstack-7.1.23-0\mysql\bin;C:\Users\aacc1\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\PostgreSQL\pg11\bin;C:\PostgreSQL\pg10\bin;C:\Program Files (x86)\Yarn\bin;C:\Program Files\nodejs;C:\Program Files\Redis;C:\Program Files\MySQL\MySQL Shell 8.0\bin;C:\Users\aacc1\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\aacc1\AppData\Roaming\npm
@@ -14,7 +14,7 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fmerge=graphql-schemas: Not found
+  Error: https://registry.yarnpkg.com/AS-ERD.drawio: Not found
       at Request.params.callback [as _callback] (C:\Program Files (x86)\Yarn\lib\cli.js:65167:18)
       at Request.self.callback (C:\Program Files (x86)\Yarn\lib\cli.js:129541:22)
       at Request.emit (events.js:200:13)

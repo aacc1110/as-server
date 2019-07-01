@@ -63,7 +63,7 @@ export const startSver = async () => {
     cors: {
       credentials: true,
       origin: 'http://localhost:3000',
-      allowHeaders: ['Content-Type', 'Authorization']
+      allowHeaders: ['Content-Type', 'Authorization', 'application/graphql']
     },
     app
   });
