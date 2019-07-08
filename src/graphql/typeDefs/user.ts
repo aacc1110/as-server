@@ -21,6 +21,12 @@ export const typeDef = gql`
     token_id: String
     faulty: Boolean
   }
+  type UserEmailConfirm {
+    email: String
+    code: String
+    confirm: Boolean
+    createdAt: Date
+  }
   input UserInput {
     email: String
     name: String
@@ -34,10 +40,12 @@ export const typeDef = gql`
 
   extend type Query {
     me: User
-    user(id: ID!): User!
+    user(id: ID, email: String): User
     users: [User!]!
+    userEmailConfirm(code: String): UserEmailConfirm
   }
   extend type Mutation {
+    checkUser(email: String!): Boolean!
     sendEmail(email: String!): Boolean!
     createMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     updateMe(user: UserInput!, userprofile: UserProfileInput): Boolean!

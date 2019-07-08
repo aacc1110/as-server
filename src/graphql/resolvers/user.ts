@@ -6,9 +6,9 @@ import { User } from '../../entity/User';
 import { setTokens, deleteTokens } from '../../lib/authToken';
 import { UserProfile } from '../../entity/UserProfile';
 import { UserToken } from '../../entity/UserToken';
+import { UserEmailConfirm } from '../../entity/UserEmailConfirm';
 import sendEmail from '../../lib/sendEmail';
 import { createAuthEmail } from '../../lib/emailTemplate';
-import { UserEmailConfirm } from '../../entity/UserEmailConfirm';
 import shortid from 'shortid';
 
 export const resolvers: IResolvers = {
@@ -17,15 +17,22 @@ export const resolvers: IResolvers = {
       if (!userId) return null;
       return await User.findOne(userId, { relations: ['posts'] });
     },
-    user: async (_, id, { userId }) => {
-      if (!userId) return null;
-      return await User.findOne(id, { relations: ['posts'] });
+    user: async (_, { id, email }) => {
+      return await User.findOne({ id, email }, { relations: ['posts'] });
     },
     users: async () => {
       return await User.find({ relations: ['posts'] });
+    },
+    userEmailConfirm: async (_, { code }) => {
+      return await UserEmailConfirm.findOne({ code });
     }
   },
   Mutation: {
+    checkUser: async (_, { email }) => {
+      const checkuser = await User.findOne({ email });
+      if (!checkuser) return false;
+      return true;
+    },
     sendEmail: async (_, { email }) => {
       const userEmailConfirm = new UserEmailConfirm();
       userEmailConfirm.code = shortid.generate();
