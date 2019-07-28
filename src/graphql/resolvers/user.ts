@@ -118,10 +118,10 @@ export const resolvers: IResolvers = {
       };
     },
     logout: async (_, __, { ctx, userId }) => {
-      if (userId) {
-        ctx.state.userId = null;
-      }
+      if (!userId) return false;
       deleteTokens(ctx);
+      userId = null;
+      console.log('userId', userId);
       return true;
     }
   }

@@ -51,7 +51,7 @@ export const typeDef = gql`
     updateMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     deleteMe(id: ID!): Boolean!
     login(email: String!, password: String!): LoginResponse!
-    logout: Boolean
+    logout: Boolean!
   }
   type LoginResponse {
     accessToken: String

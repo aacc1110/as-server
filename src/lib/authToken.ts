@@ -13,7 +13,6 @@ export const deleteTokens = (ctx: Context) => {
   ctx.cookies.set('refresh-token', undefined, {
     domain: process.env.NODE_ENV === 'development' ? undefined : ''
   });
-  ctx.status = 204;
 };
 
 export const createTokens = (user: User, tokenId: string) => {
