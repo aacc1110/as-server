@@ -27,6 +27,10 @@ export const typeDef = gql`
     confirm: Boolean
     createdAt: Date
   }
+  type LoginResponse {
+    accessToken: String
+    user: User!
+  }
   input UserInput {
     email: String
     name: String
@@ -40,9 +44,11 @@ export const typeDef = gql`
 
   extend type Query {
     me: User
+    login(email: String!, password: String!): LoginResponse!
+    logout: Boolean!
     user(id: ID, email: String): User
     users: [User!]!
-    userEmailConfirm(code: String): UserEmailConfirm
+    userEmailConfirm(code: String!): UserEmailConfirm
   }
   extend type Mutation {
     checkUser(email: String!): Boolean!
@@ -50,11 +56,8 @@ export const typeDef = gql`
     createMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     updateMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     deleteMe(id: ID!): Boolean!
-    login(email: String!, password: String!): LoginResponse!
-    logout: Boolean!
   }
-  type LoginResponse {
-    accessToken: String
-    user: User!
+  extend type Subscription {
+    user(id: ID, email: String): User
   }
 `;

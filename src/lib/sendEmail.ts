@@ -15,25 +15,25 @@ const sendEmail = ({ to, subject, body, from }: EmailParams): Promise<SendEmailR
   return new Promise((resolve, reject) => {
     const params: SendEmailRequest = {
       Destination: {
-        ToAddresses: typeof to === 'string' ? [to] : to
+        ToAddresses: typeof to === 'string' ? [to] : to,
       },
       Message: {
         Body: {
           Html: {
             Charset: 'UTF-8',
-            Data: body
+            Data: body,
           },
           Text: {
             Charset: 'UTF-8',
-            Data: sanitize(body, { allowedTags: [] })
-          }
+            Data: sanitize(body, { allowedTags: [] }),
+          },
         },
         Subject: {
           Charset: 'UTF-8',
-          Data: subject
-        }
+          Data: subject,
+        },
       },
-      Source: from
+      Source: from,
     };
     ses.sendEmail(params, (err, data) => {
       if (err) {

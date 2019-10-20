@@ -14,15 +14,6 @@ import { checkToken } from './lib/authToken';
 const app = new Koa();
 
 const { REDIS_URL, NODE_ENV } = process.env;
-async function connectDB() {
-  try {
-    await createConnection();
-    console.log('🚀 Postgres RDBMS connection is Success');
-  } catch (e) {
-    console.error(e);
-  }
-}
-connectDB();
 
 export const startSver = async () => {
   /* setup middlewares */
@@ -37,9 +28,9 @@ export const startSver = async () => {
   const pubsub = new RedisPubSub(
     NODE_ENV === 'production'
       ? {
-          connection: REDIS_URL as any
+          connection: REDIS_URL as any,
         }
-      : {}
+      : {},
   );
 
   const server = new ApolloServer({
@@ -54,19 +45,29 @@ export const startSver = async () => {
       userId: ctx.state.userId,
       /* loader: loader(),
       tagLoader: tagLoader() */
-      pubsub
+      pubsub,
     }),
-    tracing: NODE_ENV === 'development'
+    tracing: NODE_ENV === 'development',
   });
 
   server.applyMiddleware({
     cors: {
       credentials: true,
       origin: 'http://localhost:3000',
-      allowHeaders: ['Content-Type', 'Authorization', 'application/graphql']
+      allowHeaders: ['Content-Type', 'Authorization', 'application/graphql'],
     },
-    app
+    app,
   });
+
+  async function connectDB() {
+    try {
+      await createConnection();
+      console.log('Postgres RDBMS connection is Success');
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  connectDB();
   // clear cache
   /* await redis.del('PostList'); */
 

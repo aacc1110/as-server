@@ -15,6 +15,9 @@ const typeDef = gql`
   type Mutation {
     _empty: String
   }
+  type Subscription {
+    _empty: String
+  }
 `;
 
 const resolvers: IResolvers = {
@@ -22,6 +25,9 @@ const resolvers: IResolvers = {
     _version: () => '0.1'
   },
   Mutation: {
+    _empty: () => ''
+  },
+  Subscription: {
     _empty: () => ''
   },
   Date: DateScalar

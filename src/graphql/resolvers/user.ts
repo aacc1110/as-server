@@ -10,12 +10,52 @@ import { UserEmailConfirm } from '../../entity/UserEmailConfirm';
 import sendEmail from '../../lib/sendEmail';
 import { createAuthEmail } from '../../lib/emailTemplate';
 import shortid from 'shortid';
+import { AuthenticationError, ApolloError } from 'apollo-server-koa';
 
 export const resolvers: IResolvers = {
+  Subscription: {
+    user: async (_, { id, email }) => {
+      return await User.findOne({ id, email }, { relations: ['posts'] });
+    },
+  },
   Query: {
     me: async (_, __, { userId }) => {
-      if (!userId) return null;
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
       return await User.findOne(userId, { relations: ['posts'] });
+    },
+    login: async (_, { email, password }, { ctx }) => {
+      /* if (ctx.userId) return null; */
+      const tokenId = v4();
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        throw new ApolloError('User is not found', 'NOT_FOUND');
+      }
+
+      await UserToken.update({ userId: user.id }, { tokenId });
+
+      const valid = await compare(password, user.password);
+      if (!valid) {
+        throw new ApolloError('Password failed', 'PASSWORD_FAILED');
+      }
+
+      const token = { user, tokenId };
+      setTokens(ctx, token);
+      return {
+        /* accessToken, */
+        user,
+      };
+    },
+    logout: async (_, __, { ctx, userId }) => {
+      console.log('userId', userId);
+      if (!userId) {
+        throw new ApolloError('User has no unique id value', 'NO_USERID');
+      }
+      deleteTokens(ctx);
+      userId = null;
+      console.log('userId', userId);
+      return true;
     },
     user: async (_, { id, email }) => {
       return await User.findOne({ id, email }, { relations: ['posts'] });
@@ -25,7 +65,7 @@ export const resolvers: IResolvers = {
     },
     userEmailConfirm: async (_, { code }) => {
       return await UserEmailConfirm.findOne({ code });
-    }
+    },
   },
   Mutation: {
     checkUser: async (_, { email }) => {
@@ -43,7 +83,7 @@ export const resolvers: IResolvers = {
       await sendEmail({
         to: email,
         ...emailTemplate,
-        from: 'tadrow@daum.net'
+        from: 'tadrow@daum.net',
       });
       console.log('email', email);
       return true;
@@ -52,7 +92,7 @@ export const resolvers: IResolvers = {
       try {
         let user = new User();
         user = {
-          ...args.user
+          ...args.user,
         };
         user.userprofile = { ...args.userprofile };
         user.usertoken = { ...args.usertoken };
@@ -77,12 +117,12 @@ export const resolvers: IResolvers = {
         let user = new User();
         user = {
           ...args.user,
-          password: hashedPassword
+          password: hashedPassword,
         };
         if (args.userprofile) {
           let userprofile = new UserProfile();
           userprofile = {
-            ...args.userprofile
+            ...args.userprofile,
           };
           await UserProfile.update({ user: userId }, userprofile);
         }
@@ -99,30 +139,5 @@ export const resolvers: IResolvers = {
       deleteTokens(ctx);
       return true;
     },
-    login: async (_, { email, password }, { ctx }) => {
-      /* if (ctx.userId) return null; */
-      const tokenId = v4();
-      const user = await User.findOne({ where: { email } });
-      if (!user) return null;
-
-      await UserToken.update({ userId: user.id }, { tokenId });
-
-      const valid = await compare(password, user.password);
-      if (!valid) return null;
-
-      const token = { user, tokenId };
-      setTokens(ctx, token);
-      return {
-        /* accessToken, */
-        user
-      };
-    },
-    logout: async (_, __, { ctx, userId }) => {
-      if (!userId) return false;
-      deleteTokens(ctx);
-      userId = null;
-      console.log('userId', userId);
-      return true;
-    }
-  }
+  },
 };

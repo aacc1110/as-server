@@ -25,7 +25,7 @@ routes.post('/get-token', async ctx => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return null;
   ctx.body = {
-    user
+    user,
   };
   const { JWT_ACCESSKEY, JWT_REFRESHKEY } = process.env;
   if (!JWT_ACCESSKEY || !JWT_REFRESHKEY) return;
@@ -33,17 +33,17 @@ routes.post('/get-token', async ctx => {
   const accessToken = sign(
     {
       id: user.id,
-      email: user.email
+      email: user.email,
     },
     JWT_ACCESSKEY,
     {
-      expiresIn: '30d' // accessToken will expire in 30days
-    }
+      expiresIn: '30d', // accessToken will expire in 30days
+    },
   );
   ctx.cookies.set('x-token', accessToken, {
     httpOnly: true,
     maxAge: 1000 * 60 * 3,
-    domain: process.env.NODE_ENV === 'development' ? undefined : ''
+    domain: process.env.NODE_ENV === 'development' ? undefined : '',
   });
   return user;
 });

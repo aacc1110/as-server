@@ -26,8 +26,8 @@ export const resolvers: IResolvers = {
       return await Post.find({
         /*   take: limit, */
         order: {
-          createdAt: 'ASC'
-        }
+          createdAt: 'ASC',
+        },
       });
     },
     tag: async (_, tag) => {
@@ -41,7 +41,7 @@ export const resolvers: IResolvers = {
     },
     tags: async () => {
       return await Tag.find({ relations: ['posts'] });
-    }
+    },
   },
   Mutation: {
     writePost: async (_, { title, body, tags, image_urls }, { userId, redis }) => {
@@ -56,7 +56,7 @@ export const resolvers: IResolvers = {
       }
       if (image_urls) {
         post.images = await Promise.all(
-          image_urls.map((image_url: any) => Image.create({ image_url }).save())
+          image_urls.map((image_url: any) => Image.create({ image_url }).save()),
         );
       }
       await getRepository(Post).save(post);
@@ -71,7 +71,7 @@ export const resolvers: IResolvers = {
         user: userId,
         id,
         title,
-        body
+        body,
       }).save();
 
       if (tags) {
@@ -95,8 +95,8 @@ export const resolvers: IResolvers = {
       if (!userId) return false;
       const tags = await getRepository(Tag).find({
         where: {
-          posts: id
-        }
+          posts: id,
+        },
       });
       console.log('tags', tags);
       const post = await Post.delete(id);
@@ -121,6 +121,6 @@ export const resolvers: IResolvers = {
       await getRepository(Comment).save(comments);
 
       return true;
-    }
-  }
+    },
+  },
 };
