@@ -1,4 +1,7 @@
 {
   "editor.tabSize": 2,
-  "editor.fontFamily": "Hack, Menlo, Monaco, 'Courier New', monospace"
+  "editor.fontFamily": "Hack, Menlo, Monaco, 'Courier New', monospace",
+  "eslint.autoFixOnSave": true,
+  "tslint.packageManager": "yarn",
+  "prettier.printWidth": 100,
 }

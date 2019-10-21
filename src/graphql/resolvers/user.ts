@@ -89,6 +89,7 @@ export const resolvers: IResolvers = {
       return true;
     },
     createMe: async (_, args) => {
+      console.log('args.user.email', args.user.email);
       try {
         let user = new User();
         user = {
