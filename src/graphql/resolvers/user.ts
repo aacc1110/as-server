@@ -1,7 +1,6 @@
 import { IResolvers } from 'graphql-tools';
 import { hash, compare } from 'bcryptjs';
 import { v4 } from 'uuid';
-
 import { User } from '../../entity/User';
 import { setTokens, deleteTokens } from '../../lib/authToken';
 import { UserProfile } from '../../entity/UserProfile';
@@ -24,38 +23,6 @@ export const resolvers: IResolvers = {
         throw new AuthenticationError('Not Logged In');
       }
       return await User.findOne(userId, { relations: ['posts'] });
-    },
-    login: async (_, { email, password }, { ctx }) => {
-      /* if (ctx.userId) return null; */
-      const tokenId = v4();
-      const user = await User.findOne({ where: { email } });
-      if (!user) {
-        throw new ApolloError('User is not found', 'NOT_FOUND');
-      }
-
-      await UserToken.update({ userId: user.id }, { tokenId });
-
-      const valid = await compare(password, user.password);
-      if (!valid) {
-        throw new ApolloError('Password failed', 'PASSWORD_FAILED');
-      }
-
-      const token = { user, tokenId };
-      setTokens(ctx, token);
-      return {
-        /* accessToken, */
-        user,
-      };
-    },
-    logout: async (_, __, { ctx, userId }) => {
-      console.log('userId', userId);
-      if (!userId) {
-        throw new ApolloError('User has no unique id value', 'NO_USERID');
-      }
-      deleteTokens(ctx);
-      userId = null;
-      console.log('userId', userId);
-      return true;
     },
     user: async (_, { id, email }) => {
       return await User.findOne({ id, email }, { relations: ['posts'] });
@@ -88,17 +55,47 @@ export const resolvers: IResolvers = {
       console.log('email', email);
       return true;
     },
-    createMe: async (_, args) => {
-      console.log('args.user.email', args.user.email);
-      try {
-        let user = new User();
-        user = {
-          ...args.user,
-        };
-        user.userprofile = { ...args.userprofile };
-        user.usertoken = { ...args.usertoken };
+    login: async (_, { email, password }, { ctx }) => {
+      /* if (ctx.userId) return null; */
+      const tokenId = v4();
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        throw new ApolloError('User is not found', 'NOT_FOUND');
+      }
 
-        await User.create(user).save();
+      await UserToken.update({ userId: user.id }, { tokenId });
+
+      const valid = await compare(password, user.password);
+      if (!valid) {
+        throw new ApolloError('Password failed', 'PASSWORD_FAILED');
+      }
+
+      const token = { user, tokenId };
+      setTokens(ctx, token);
+      return {
+        /* accessToken, */
+        user,
+      };
+    },
+    logout: async (_, __, { ctx, userId }) => {
+      if (!userId) {
+        throw new ApolloError('User has no unique id value', 'NO_USERID');
+      }
+      deleteTokens(ctx);
+      userId = null;
+      console.log('userId', userId);
+      return true;
+    },
+    createMe: async (_, { user, userprofile }) => {
+      try {
+        let me = new User();
+        me = {
+          ...user,
+        };
+        me.userprofile = { ...userprofile };
+        me.usertoken = { ...user };
+
+        await User.create(me).save();
       } catch (e) {
         console.error(e);
         return false;
@@ -107,15 +104,15 @@ export const resolvers: IResolvers = {
     },
     updateMe: async (_, args, { userId }) => {
       if (!userId) return false;
+      // const { email } = args.user;
+      // const emailConfirm = User.find({ email });
+      // if (emailConfirm) {
+      //   throw new ApolloError('Unique value email', 'NO_UNIQUE');
+      // }
       try {
         const hashedPassword = await hash(args.user.password, 10);
-        console.log('...args.userprofile', args.userprofile);
-        /*         let profile = new UserProfile();
-                profile = {
-                  ...args.userprofile,
-                  user: { ...args.user }
-                }; */
         let user = new User();
+
         user = {
           ...args.user,
           password: hashedPassword,
@@ -134,9 +131,9 @@ export const resolvers: IResolvers = {
       }
       return true;
     },
-    deleteMe: async (_, args, { ctx, userId }) => {
-      if (args.id !== userId || !userId) return false;
-      await User.delete(args.id);
+    deleteMe: async (_, { id }, { ctx, userId }) => {
+      if (id !== userId || !userId) return false;
+      await User.delete(id);
       deleteTokens(ctx);
       return true;
     },

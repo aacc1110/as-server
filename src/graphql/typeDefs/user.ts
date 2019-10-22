@@ -44,8 +44,6 @@ export const typeDef = gql`
 
   extend type Query {
     me: User
-    login(email: String!, password: String!): LoginResponse!
-    logout: Boolean!
     user(id: ID, email: String): User
     users: [User!]!
     userEmailConfirm(code: String!): UserEmailConfirm
@@ -53,6 +51,8 @@ export const typeDef = gql`
   extend type Mutation {
     checkUser(email: String!): Boolean!
     sendEmail(email: String!): Boolean!
+    login(email: String!, password: String!): LoginResponse!
+    logout: Boolean!
     createMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     updateMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
     deleteMe(id: ID!): Boolean!
