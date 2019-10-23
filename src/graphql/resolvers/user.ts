@@ -14,7 +14,7 @@ import { createAuthEmail } from '../../lib/emailTemplate';
 
 export const resolvers: IResolvers = {
   Subscription: {
-    user: async (_, { id, email }) => {
+    addUser: async (_, { id, email }) => {
       return await User.findOne({ id, email }, { relations: ['posts'] });
     },
   },

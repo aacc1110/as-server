@@ -26,7 +26,7 @@ export const typeDef = gql`
   }
   type Image {
     id: ID!
-    image_url: String!
+    imageUrl: String!
     post: Post!
   }
   type Comment {
@@ -44,7 +44,7 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    writePost(title: String!, body: String!, tags: [String], image_urls: [String]): Boolean!
+    writePost(title: String!, body: String!, tags: [String], imageUrl: [String]): Boolean!
     updatePost(id: ID!, title: String, body: String, tags: [String]): Boolean!
     deletePost(id: ID!): Boolean!
     writeComment(postId: ID!, comment: String!, level: Int): Boolean!

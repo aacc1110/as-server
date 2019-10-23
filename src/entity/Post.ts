@@ -9,7 +9,7 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
 import { User } from './User';
 import { Tag } from './Tag';
@@ -57,27 +57,27 @@ export class Post extends BaseEntity {
 
   @ManyToOne(() => User, user => user.posts, {
     eager: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   user!: User;
 
   @ManyToMany(() => Tag, tags => tags.posts, {
     eager: true,
-    cascade: true
+    cascade: true,
   })
   @JoinTable({ name: 'posts_tags' })
   tags!: Tag[];
 
   @OneToMany(() => Image, images => images.posts, {
     eager: true,
-    cascade: true
+    cascade: true,
   })
   @JoinTable()
   images!: Image[];
 
   @OneToMany(() => Comment, comments => comments.posts, {
     eager: true,
-    cascade: true
+    cascade: true,
   })
   @JoinTable()
   comments!: Comment[];

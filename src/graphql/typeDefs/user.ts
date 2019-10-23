@@ -63,6 +63,6 @@ export const typeDef = gql`
     deleteMe(id: ID!): Boolean!
   }
   extend type Subscription {
-    addUser: User
+    addUser(id: ID, email: String): User
   }
 `;

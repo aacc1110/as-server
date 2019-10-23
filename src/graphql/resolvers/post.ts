@@ -44,7 +44,7 @@ export const resolvers: IResolvers = {
     },
   },
   Mutation: {
-    writePost: async (_, { title, body, tags, image_urls }, { userId, redis }) => {
+    writePost: async (_, { title, body, tags, imageUrl }, { userId, redis }) => {
       if (!userId) return false;
       console.log('WritePost - tags', tags);
       const post = new Post();
@@ -54,9 +54,9 @@ export const resolvers: IResolvers = {
       if (tags) {
         post.tags = await Promise.all(tags.map((tag: any) => Tag.create({ tag }).save()));
       }
-      if (image_urls) {
+      if (imageUrl) {
         post.images = await Promise.all(
-          image_urls.map((image_url: any) => Image.create({ image_url }).save()),
+          imageUrl.map((imageUrl: any) => Image.create({ imageUrl }).save()),
         );
       }
       await getRepository(Post).save(post);

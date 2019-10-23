@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-  ManyToOne
+  ManyToOne,
 } from 'typeorm';
 
 import { Post } from './Post';
@@ -18,7 +18,7 @@ export class Image extends BaseEntity {
 
   @Index()
   @Column('varchar', { length: 255, nullable: true })
-  image_url!: string;
+  imageUrl!: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;

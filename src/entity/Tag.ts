@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-  ManyToMany
+  ManyToMany,
 } from 'typeorm';
 import { Post } from './Post';
 
