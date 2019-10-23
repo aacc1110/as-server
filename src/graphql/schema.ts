@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-koa';
 import * as userT from './typeDefs/user';
 import * as userR from './resolvers/user';
 import * as postT from './typeDefs/post';
-import * as postR from './resolvers/user';
+import * as postR from './resolvers/post';
 import DateScalar from './scalar/DateScalar';
 
 const typeDef = gql`

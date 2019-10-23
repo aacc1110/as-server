@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import logger from 'koa-logger';
-import { ApolloServer } from 'apollo-server-koa';
+import { ApolloServer, PubSub } from 'apollo-server-koa';
 import { createConnection } from 'typeorm';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 
@@ -12,6 +12,7 @@ import routes from './routes';
 import { checkToken } from './lib/authToken';
 
 const app = new Koa();
+const pubsub = new PubSub();
 
 const { REDIS_URL, NODE_ENV } = process.env;
 
@@ -45,6 +46,7 @@ export const startSver = async () => {
       userId: ctx.state.userId,
       /* loader: loader(),
       tagLoader: tagLoader() */
+      pubsub,
       pubsubRedis,
     }),
     tracing: NODE_ENV === 'development',

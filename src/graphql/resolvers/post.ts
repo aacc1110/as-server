@@ -1,6 +1,7 @@
 import { IResolvers } from 'graphql-tools';
 import 'apollo-cache-control';
 import { getConnection, getRepository } from 'typeorm';
+import { AuthenticationError } from 'apollo-server-koa';
 
 import { Post } from '../../entity/Post';
 import { Tag } from '../../entity/Tag';
@@ -45,7 +46,9 @@ export const resolvers: IResolvers = {
   },
   Mutation: {
     writePost: async (_, { title, body, tags, imageUrl }, { userId, redis }) => {
-      if (!userId) return false;
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
       console.log('WritePost - tags', tags);
       const post = new Post();
       post.user = userId;
@@ -61,7 +64,7 @@ export const resolvers: IResolvers = {
       }
       await getRepository(Post).save(post);
 
-      await redis.lpush('PostList', JSON.stringify(post));
+      // await redis.lpush('PostList', JSON.stringify(post));
 
       return true;
     },
