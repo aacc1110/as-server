@@ -1,15 +1,16 @@
 import { IResolvers } from 'graphql-tools';
 import { hash, compare } from 'bcryptjs';
 import { v4 } from 'uuid';
-import { User } from '../../entity/User';
+import shortid from 'shortid';
+import { AuthenticationError, ApolloError } from 'apollo-server-koa';
+
 import { setTokens, deleteTokens } from '../../lib/authToken';
+import { User } from '../../entity/User';
 import { UserProfile } from '../../entity/UserProfile';
 import { UserToken } from '../../entity/UserToken';
 import { UserEmailConfirm } from '../../entity/UserEmailConfirm';
 import sendEmail from '../../lib/sendEmail';
 import { createAuthEmail } from '../../lib/emailTemplate';
-import shortid from 'shortid';
-import { AuthenticationError, ApolloError } from 'apollo-server-koa';
 
 export const resolvers: IResolvers = {
   Subscription: {
@@ -86,14 +87,14 @@ export const resolvers: IResolvers = {
       console.log('userId', userId);
       return true;
     },
-    createMe: async (_, { user, userprofile }) => {
+    createMe: async (_, { user, userProfile }) => {
       try {
         let me = new User();
         me = {
           ...user,
         };
-        me.userprofile = { ...userprofile };
-        me.usertoken = { ...user };
+        me.userProfile = { ...userProfile };
+        me.userToken = { ...user };
 
         await User.create(me).save();
       } catch (e) {
@@ -117,12 +118,12 @@ export const resolvers: IResolvers = {
           ...args.user,
           password: hashedPassword,
         };
-        if (args.userprofile) {
-          let userprofile = new UserProfile();
-          userprofile = {
-            ...args.userprofile,
+        if (args.userProfile) {
+          let userProfile = new UserProfile();
+          userProfile = {
+            ...args.userProfile,
           };
-          await UserProfile.update({ user: userId }, userprofile);
+          await UserProfile.update({ user: userId }, userProfile);
         }
         await User.update(userId, user);
       } catch (e) {

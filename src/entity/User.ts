@@ -8,7 +8,7 @@ import {
   OneToMany,
   OneToOne,
   Index,
-  BeforeInsert
+  BeforeInsert,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
@@ -38,16 +38,16 @@ export class User extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
-  @OneToOne(() => UserProfile, userprofile => userprofile.user, {
+  @OneToOne(() => UserProfile, userProfile => userProfile.user, {
     eager: true,
-    cascade: true
+    cascade: true,
   })
-  userprofile!: UserProfile;
+  userProfile!: UserProfile;
 
-  @OneToOne(() => UserToken, usertoken => usertoken.user, {
-    cascade: true
+  @OneToOne(() => UserToken, userToken => userToken.user, {
+    cascade: true,
   })
-  usertoken!: Promise<UserToken>;
+  userToken!: Promise<UserToken>;
 
   @OneToMany(() => Post, post => post.user, { cascade: true })
   posts!: Post[];

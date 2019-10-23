@@ -25,7 +25,7 @@ export const startSver = async () => {
 
   app.use(routes.routes()).use(routes.allowedMethods());
 
-  const pubsub = new RedisPubSub(
+  const pubsubRedis = new RedisPubSub(
     NODE_ENV === 'production'
       ? {
           connection: REDIS_URL as any,
@@ -45,7 +45,7 @@ export const startSver = async () => {
       userId: ctx.state.userId,
       /* loader: loader(),
       tagLoader: tagLoader() */
-      pubsub,
+      pubsubRedis,
     }),
     tracing: NODE_ENV === 'development',
   });

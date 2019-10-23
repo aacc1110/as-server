@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
-  JoinColumn
+  JoinColumn,
 } from 'typeorm';
 import { User } from './User';
 
@@ -36,7 +36,7 @@ export class UserProfile extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
-  @OneToOne(() => User, user => user.userprofile, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, user => user.userProfile, { onDelete: 'CASCADE' })
   @JoinColumn()
   user!: Promise<User>;
 }

@@ -15,7 +15,7 @@ const DateScalar = new GraphQLScalarType({
       return new Date(ast.value); // ast value is always in string format
     }
     return null;
-  }
+  },
 });
 
 export default DateScalar;

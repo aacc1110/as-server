@@ -7,7 +7,13 @@ import * as postR from './resolvers/post';
 import DateScalar from './scalar/DateScalar';
 
 const typeDef = gql`
+  enum AlloweColor {
+    RED
+    GREEN
+    BLUE
+  }
   scalar Date
+  scalar Email
   scalar JSON
   type Query {
     _version: String
@@ -21,21 +27,21 @@ const typeDef = gql`
 `;
 
 const resolvers: IResolvers = {
+  Date: DateScalar,
   Query: {
-    _version: () => '0.1'
+    _version: () => '0.1',
   },
   Mutation: {
-    _empty: () => ''
+    _empty: () => '',
   },
   Subscription: {
-    _empty: () => ''
+    _empty: () => '',
   },
-  Date: DateScalar
 };
 
 const schema = makeExecutableSchema({
   typeDefs: [typeDef, userT.typeDef, postT.typeDef],
-  resolvers: [resolvers, userR.resolvers, postR.resolvers]
+  resolvers: [resolvers, userR.resolvers, postR.resolvers],
 });
 /* addMockFunctionsToSchema({ schema }); */
 

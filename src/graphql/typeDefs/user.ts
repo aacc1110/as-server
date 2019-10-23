@@ -1,13 +1,18 @@
 import { gql } from 'apollo-server-koa';
 
+// # 필드 이름 은을 사용해야 camelCase합니다. 많은 GraphQL 클라이언트는 JavaScript, Java, Kotlin 또는 Swift로 작성되며 모두 camelCase변수 이름에 권장 됩니다.
+// # 유형 이름 은을 사용해야 PascalCase합니다. 이것은 위에서 언급 한 언어로 클래스를 정의하는 방법과 일치합니다.
+// # 열거 형 이름 은을 사용해야 PascalCase합니다.
+// # 열거 형 값 은 ALL_CAPS상수와 유사하므로를 사용해야합니다 .
+
 export const typeDef = gql`
   type User {
     id: ID!
     email: String!
     name: String
     password: String
-    userprofile: UserProfile
-    usertoken: UserToken!
+    userProfile: UserProfile
+    userToken: UserToken!
     posts: [Post!]
   }
   type UserProfile {
@@ -53,11 +58,11 @@ export const typeDef = gql`
     sendEmail(email: String!): Boolean!
     login(email: String!, password: String!): LoginResponse!
     logout: Boolean!
-    createMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
-    updateMe(user: UserInput!, userprofile: UserProfileInput): Boolean!
+    createMe(user: UserInput!, userProfile: UserProfileInput): Boolean!
+    updateMe(user: UserInput!, userProfile: UserProfileInput): Boolean!
     deleteMe(id: ID!): Boolean!
   }
   extend type Subscription {
-    user(id: ID, email: String): User
+    addUser: User
   }
 `;
