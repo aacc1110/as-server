@@ -35,6 +35,12 @@ export const typeDef = gql`
     level: Int
     post: Post!
   }
+  input PostInput {
+    title: String!
+    body: String!
+    tags: [String]
+    imageUrl: [String]
+  }
 
   extend type Query {
     post(id: ID!): Post!
@@ -44,8 +50,8 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    writePost(title: String!, body: String!, tags: [String], imageUrl: [String]): Boolean!
-    updatePost(id: ID!, title: String, body: String, tags: [String]): Boolean!
+    writePost(postInput: PostInput): Boolean!
+    updatePost(id: ID!, postInput: PostInput): Boolean!
     deletePost(id: ID!): Boolean!
     writeComment(postId: ID!, comment: String!, level: Int): Boolean!
   }

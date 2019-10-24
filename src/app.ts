@@ -42,11 +42,11 @@ export const startSver = async () => {
     }, */
     context: ({ ctx }) => ({
       ctx,
-      redis,
       userId: ctx.state.userId,
+      pubsub,
       /* loader: loader(),
       tagLoader: tagLoader() */
-      pubsub,
+      redis,
       pubsubRedis,
     }),
     tracing: NODE_ENV === 'development',

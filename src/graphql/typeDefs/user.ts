@@ -58,8 +58,8 @@ export const typeDef = gql`
     sendEmail(email: String!): Boolean!
     login(email: String!, password: String!): LoginResponse!
     logout: Boolean!
-    createMe(user: UserInput!, userProfile: UserProfileInput): Boolean!
-    updateMe(user: UserInput!, userProfile: UserProfileInput): Boolean!
+    createMe(userInput: UserInput!, userProfileInput: UserProfileInput): Boolean!
+    updateMe(userInput: UserInput!, userProfileInput: UserProfileInput): Boolean!
     deleteMe(id: ID!): Boolean!
   }
   extend type Subscription {

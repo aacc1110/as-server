@@ -26,6 +26,9 @@ export const resolvers: IResolvers = {
       return await User.findOne(userId, { relations: ['posts'] });
     },
     user: async (_, { id, email }) => {
+      if (!id || !email) {
+        throw new ApolloError('Not User ID');
+      }
       return await User.findOne({ id, email }, { relations: ['posts'] });
     },
     users: async () => {
@@ -87,16 +90,16 @@ export const resolvers: IResolvers = {
       console.log('userId', userId);
       return true;
     },
-    createMe: async (_, { user, userProfile }) => {
+    createMe: async (_, { userInput, userProfileInput }) => {
       try {
-        let me = new User();
-        me = {
-          ...user,
+        let user = new User();
+        user = {
+          ...userInput,
         };
-        me.userProfile = { ...userProfile };
-        me.userToken = { ...user };
+        user.userProfile = { ...userProfileInput };
+        user.userToken = { ...userInput };
 
-        await User.create(me).save();
+        await User.create(user).save();
       } catch (e) {
         console.error(e);
         return false;
@@ -104,26 +107,28 @@ export const resolvers: IResolvers = {
       return true;
     },
     updateMe: async (_, args, { userId }) => {
-      if (!userId) return false;
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
       // const { email } = args.user;
       // const emailConfirm = User.find({ email });
       // if (emailConfirm) {
       //   throw new ApolloError('Unique value email', 'NO_UNIQUE');
       // }
       try {
-        const hashedPassword = await hash(args.user.password, 10);
+        const hashedPassword = await hash(args.userInput.password, 10);
         let user = new User();
 
         user = {
-          ...args.user,
+          ...args.userInput,
           password: hashedPassword,
         };
-        if (args.userProfile) {
+        if (args.userProfileInput) {
           let userProfile = new UserProfile();
           userProfile = {
-            ...args.userProfile,
+            ...args.userProfileInput,
           };
-          await UserProfile.update({ user: userId }, userProfile);
+          await UserProfile.getRepository().update({ user: userId }, userProfile);
         }
         await User.update(userId, user);
       } catch (e) {
@@ -133,7 +138,9 @@ export const resolvers: IResolvers = {
       return true;
     },
     deleteMe: async (_, { id }, { ctx, userId }) => {
-      if (id !== userId || !userId) return false;
+      if (id !== userId || !userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
       await User.delete(id);
       deleteTokens(ctx);
       return true;

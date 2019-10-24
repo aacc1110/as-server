@@ -45,21 +45,22 @@ export const resolvers: IResolvers = {
     },
   },
   Mutation: {
-    writePost: async (_, { title, body, tags, imageUrl }, { userId, redis }) => {
+    writePost: async (_, { postInput }, { userId, redis }) => {
       if (!userId) {
         throw new AuthenticationError('Not Logged In');
       }
+      const { title, body, tags, imageUrl } = postInput;
       console.log('WritePost - tags', tags);
       const post = new Post();
       post.user = userId;
       post.title = title;
       post.body = body;
       if (tags) {
-        post.tags = await Promise.all(tags.map((tag: any) => Tag.create({ tag }).save()));
+        post.tags = await Promise.all(tags.map((tag: string) => Tag.create({ tag }).save()));
       }
       if (imageUrl) {
         post.images = await Promise.all(
-          imageUrl.map((imageUrl: any) => Image.create({ imageUrl }).save()),
+          imageUrl.map((imageUrl: string) => Image.create({ imageUrl }).save()),
         );
       }
       await getRepository(Post).save(post);
@@ -68,14 +69,16 @@ export const resolvers: IResolvers = {
 
       return true;
     },
-    updatePost: async (_, { id, title, body, tags }, { userId }) => {
-      if (!userId) return false;
-      const post = await Post.create({
-        user: userId,
-        id,
-        title,
-        body,
-      }).save();
+    updatePost: async (_, { id, postInput }, { userId }) => {
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
+      const { title, body, tags, imageUrl } = postInput;
+      const post = new Post();
+      post.id = id;
+      post.user = userId;
+      post.title = title;
+      post.body = body;
 
       if (tags) {
         const delTag = await Tag.find({ posts: { id } });
@@ -84,18 +87,30 @@ export const resolvers: IResolvers = {
           console.log('delTag', delTag.length);
           await Tag.remove(delTag);
         }
-        tags = await Promise.all(tags.map((tag: any) => Tag.create({ tag }).save()));
+        post.tags = await Promise.all(tags.map((tag: string) => Tag.create({ tag }).save()));
       }
-      await getConnection()
-        .createQueryBuilder()
-        .relation(Post, 'tags')
-        .of(post)
-        .add(tags);
+      if (imageUrl) {
+        const delImage = await Image.find({ posts: { id } });
+        if (delImage.length > 0) {
+          await Image.remove(delImage);
+        }
+        post.images = await Promise.all(
+          imageUrl.map((imageUrl: string) => Image.create({ imageUrl }).save()),
+        );
+      }
+      await getRepository(Post).save(post);
+      // await getConnection()
+      //   .createQueryBuilder()
+      //   .relation(Post, 'tags')
+      //   .of(post)
+      //   .add(tags);
 
       return true;
     },
     deletePost: async (_, id, { userId }) => {
-      if (!userId) return false;
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
       const tags = await getRepository(Tag).find({
         where: {
           posts: id,
