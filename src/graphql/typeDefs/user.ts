@@ -33,7 +33,7 @@ export const typeDef = gql`
     createdAt: Date
   }
   type LoginResponse {
-    accessToken: String
+    tokenId: String!
     user: User!
   }
   input UserInput {
@@ -49,14 +49,14 @@ export const typeDef = gql`
 
   extend type Query {
     me: User
-    user(id: ID, email: String): User
+    user(id: ID!, email: String): User
     users: [User!]!
     userEmailConfirm(code: String!): UserEmailConfirm
   }
   extend type Mutation {
     checkUser(email: String!): Boolean!
     sendEmail(email: String!): Boolean!
-    login(email: String!, password: String!): LoginResponse!
+    login(email: String!, password: String!): LoginResponse
     logout: Boolean!
     createMe(userInput: UserInput!, userProfileInput: UserProfileInput): Boolean!
     updateMe(userInput: UserInput!, userProfileInput: UserProfileInput): Boolean!

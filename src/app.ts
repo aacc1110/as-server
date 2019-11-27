@@ -53,12 +53,13 @@ export const startSver = async () => {
   });
 
   server.applyMiddleware({
-    cors: {
-      credentials: true,
-      origin: 'http://localhost:3000',
-      allowHeaders: ['Content-Type', 'Authorization', 'application/graphql'],
-    },
     app,
+    // cors: {
+    //   // origin: '*',
+    //   origin: 'https://localhost:3000',
+    //   credentials: true,
+    //   allowHeaders: ['content-type', 'application/json', 'Authorization', 'application/graphql'],
+    // },
   });
 
   async function connectDB() {

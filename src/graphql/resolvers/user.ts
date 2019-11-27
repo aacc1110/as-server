@@ -25,8 +25,9 @@ export const resolvers: IResolvers = {
       }
       return await User.findOne(userId, { relations: ['posts'] });
     },
+
     user: async (_, { id, email }) => {
-      if (!id || !email) {
+      if (!id) {
         throw new ApolloError('Not User ID');
       }
       return await User.findOne({ id, email }, { relations: ['posts'] });
@@ -61,23 +62,23 @@ export const resolvers: IResolvers = {
     },
     login: async (_, { email, password }, { ctx }) => {
       /* if (ctx.userId) return null; */
-      const tokenId = v4();
-      const user = await User.findOne({ where: { email } });
+      const user = await User.findOne({ email }, { relations: ['posts'] });
       if (!user) {
         throw new ApolloError('User is not found', 'NOT_FOUND');
       }
-
-      await UserToken.update({ userId: user.id }, { tokenId });
 
       const valid = await compare(password, user.password);
       if (!valid) {
         throw new ApolloError('Password failed', 'PASSWORD_FAILED');
       }
 
+      const tokenId = v4();
+      await UserToken.update({ userId: user.id }, { tokenId });
+
       const token = { user, tokenId };
       setTokens(ctx, token);
       return {
-        /* accessToken, */
+        tokenId,
         user,
       };
     },

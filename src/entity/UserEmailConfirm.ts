@@ -4,7 +4,7 @@ import {
   Column,
   BaseEntity,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('user_email_confirm', { synchronize: true })

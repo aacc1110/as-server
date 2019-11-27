@@ -20,7 +20,7 @@ export const createTokens = (user: User, tokenId: string) => {
 
   const accessToken = sign({ pdi: user.name }, JWT_ACCESSKEY, {
     audience: user.email,
-    expiresIn: '30min',
+    expiresIn: '1min',
     jwtid: user.id,
   });
 
