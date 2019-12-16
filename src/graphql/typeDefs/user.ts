@@ -19,6 +19,7 @@ export const typeDef = gql`
     id: ID!
     about: String
     thumbnail: String
+    imageUrl: String
     mobile: String
   }
   type UserToken {
@@ -33,6 +34,8 @@ export const typeDef = gql`
     createdAt: Date
   }
   type LoginResponse {
+    accessToken: String
+    refreshToken: String
     tokenId: String!
     user: User!
   }
@@ -49,7 +52,7 @@ export const typeDef = gql`
 
   extend type Query {
     me: User
-    user(id: ID!, email: String): User
+    user(email: String!): User
     users: [User!]!
     userEmailConfirm(code: String!): UserEmailConfirm
   }
@@ -57,7 +60,7 @@ export const typeDef = gql`
     checkUser(email: String!): Boolean!
     sendEmail(email: String!): Boolean!
     login(email: String!, password: String!): LoginResponse
-    logout: Boolean!
+    logout: Boolean
     createMe(userInput: UserInput!, userProfileInput: UserProfileInput): Boolean!
     updateMe(userInput: UserInput!, userProfileInput: UserProfileInput): Boolean!
     deleteMe(id: ID!): Boolean!

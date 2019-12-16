@@ -18,14 +18,14 @@ export const deleteTokens = (ctx: Context) => {
 export const createTokens = (user: User, tokenId: string) => {
   if (!JWT_ACCESSKEY || !JWT_REFRESHKEY) return;
 
-  const accessToken = sign({ pdi: user.name }, JWT_ACCESSKEY, {
+  const accessToken: string = sign({ pdi: user.name }, JWT_ACCESSKEY, {
     audience: user.email,
-    expiresIn: '1min',
+    expiresIn: '30min',
     jwtid: user.id,
   });
 
-  const refreshToken = sign({ tokenId }, JWT_REFRESHKEY, {
-    expiresIn: '50min',
+  const refreshToken: string = sign({ tokenId }, JWT_REFRESHKEY, {
+    expiresIn: '30days',
     jwtid: user.id,
   });
 
@@ -35,15 +35,20 @@ export const createTokens = (user: User, tokenId: string) => {
 export const setTokens = (ctx: Context, token: { user: User; tokenId: string }) => {
   const { accessToken, refreshToken }: any = createTokens(token.user, token.tokenId);
 
+  ctx.cookies.set('xlg', '', {
+    domain: process.env.NODE_ENV === 'development' ? undefined : '',
+  });
+
   ctx.cookies.set('access-token', accessToken, {
     maxAge: 1000 * 60 * 30,
     domain: process.env.NODE_ENV === 'development' ? undefined : '',
   });
 
   ctx.cookies.set('refresh-token', refreshToken, {
-    maxAge: 1000 * 60 * 50,
+    maxAge: 1000 * 60 * 60 * 24 * 30,
     domain: process.env.NODE_ENV === 'development' ? undefined : '',
   });
+  return { accessToken, refreshToken };
 };
 export const checkToken: Middleware = async (ctx, next) => {
   if (!JWT_ACCESSKEY || !JWT_REFRESHKEY) return;
@@ -86,15 +91,28 @@ export const checkToken: Middleware = async (ctx, next) => {
       });
 
       const diff = decodeToken.exp * 1000 - new Date().getTime();
-      if (diff < 1000 * 60 * 40 && refresh) {
+      if (diff < 1000 * 60 * 60 * 24 * 25 && refresh) {
         ctx.cookies.set('refresh-token', refreshToken, {
-          maxAge: 1000 * 60 * 50,
+          maxAge: 1000 * 60 * 60 * 24 * 30,
           domain: process.env.NODE_ENV === 'development' ? undefined : '',
         });
       }
     } catch (e) {
       console.error(e);
     }
+    return next();
+  }
+  if (!access && !refresh) {
+    const xlg: string = sign({ xlg: '' }, JWT_ACCESSKEY, {
+      expiresIn: '30days',
+    });
+
+    ctx.cookies.set('xlg', xlg, {
+      httpOnly: false,
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      domain: process.env.NODE_ENV === 'development' ? undefined : '',
+    });
+    return next();
   }
   return next();
 };

@@ -5,11 +5,11 @@ export const typeDef = gql`
     id: ID!
     title: String!
     body: String!
-    is_publish: Boolean
+    isPublish: Boolean
     meta: JSON
-    views_count: Int
-    short_summary: String
-    url_path: String
+    viewsCount: Int
+    shortSummary: String
+    urlPath: String
     releasedAt: Date
     updatedAt: Date
     createdAt: Date

@@ -26,17 +26,24 @@ export const resolvers: IResolvers = {
       return await User.findOne(userId, { relations: ['posts'] });
     },
 
-    user: async (_, { id, email }) => {
-      if (!id) {
-        throw new ApolloError('Not User ID');
-      }
-      return await User.findOne({ id, email }, { relations: ['posts'] });
+    user: async (_, { email }) => {
+      return await User.findOne({ email }, { relations: ['posts'] });
     },
     users: async () => {
       return await User.find({ relations: ['posts'] });
     },
     userEmailConfirm: async (_, { code }) => {
-      return await UserEmailConfirm.findOne({ code });
+      const userEmailConfirm = await UserEmailConfirm.findOne({ code });
+      if (!userEmailConfirm) {
+        throw new ApolloError('User RESISTER CODE is not found', 'NOT_FOUND');
+      }
+      try {
+        userEmailConfirm.confirm = true;
+        userEmailConfirm.save();
+      } catch (e) {
+        console.log(e);
+      }
+      return userEmailConfirm;
     },
   },
   Mutation: {
@@ -60,6 +67,7 @@ export const resolvers: IResolvers = {
       console.log('email', email);
       return true;
     },
+
     login: async (_, { email, password }, { ctx }) => {
       /* if (ctx.userId) return null; */
       const user = await User.findOne({ email }, { relations: ['posts'] });
@@ -76,8 +84,11 @@ export const resolvers: IResolvers = {
       await UserToken.update({ userId: user.id }, { tokenId });
 
       const token = { user, tokenId };
-      setTokens(ctx, token);
+      const { accessToken, refreshToken } = setTokens(ctx, token);
+      console.log(accessToken, refreshToken);
       return {
+        accessToken,
+        refreshToken,
         tokenId,
         user,
       };
@@ -91,6 +102,7 @@ export const resolvers: IResolvers = {
       console.log('userId', userId);
       return true;
     },
+
     createMe: async (_, { userInput, userProfileInput }) => {
       try {
         let user = new User();
@@ -111,11 +123,6 @@ export const resolvers: IResolvers = {
       if (!userId) {
         throw new AuthenticationError('Not Logged In');
       }
-      // const { email } = args.user;
-      // const emailConfirm = User.find({ email });
-      // if (emailConfirm) {
-      //   throw new ApolloError('Unique value email', 'NO_UNIQUE');
-      // }
       try {
         const hashedPassword = await hash(args.userInput.password, 10);
         let user = new User();
