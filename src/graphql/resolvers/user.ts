@@ -39,7 +39,7 @@ export const resolvers: IResolvers = {
       }
       try {
         userEmailConfirm.confirm = true;
-        userEmailConfirm.save();
+        await userEmailConfirm.save();
       } catch (e) {
         console.log(e);
       }

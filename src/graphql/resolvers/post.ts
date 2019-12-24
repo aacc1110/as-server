@@ -1,12 +1,15 @@
 import { IResolvers } from 'graphql-tools';
 import 'apollo-cache-control';
-import { getConnection, getRepository } from 'typeorm';
-import { AuthenticationError } from 'apollo-server-koa';
+import { getConnection, getRepository, getManager, createQueryBuilder } from 'typeorm';
+import { AuthenticationError, ApolloError } from 'apollo-server-koa';
+import { v4 } from 'uuid';
 
 import { Post } from '../../entity/Post';
 import { Tag } from '../../entity/Tag';
 import { Image } from '../../entity/Image';
 import { Comment } from '../../entity/Comment';
+import shortid from 'shortid';
+import { escapeForUrl } from '../../lib/utils';
 
 export const resolvers: IResolvers = {
   /* Post: {
@@ -22,14 +25,31 @@ export const resolvers: IResolvers = {
     post: async (_, id) => {
       return await Post.findOne(id);
     },
-    posts: async () => {
+    posts: async (_, { cursor, take = 12 }) => {
       /* info.cacheControl.setCacheHint({ maxAge: 300 }); */
-      return await Post.find({
-        /*   take: limit, */
-        order: {
-          createdAt: 'ASC',
-        },
-      });
+      const query = createQueryBuilder(Post, 'post')
+        .take(take)
+        .orderBy('post.releasedAt', 'DESC')
+        .where('post.isPublish = true');
+
+      if (cursor) {
+        const post = await Post.findOne({ id: cursor });
+        // console.log('cursorPost', post);
+        if (!post) {
+          throw new ApolloError('invalid cursor');
+        }
+        query.andWhere('post.releasedAt < :date', {
+          date: post.releasedAt,
+          id: post.id,
+        });
+        query.orWhere('post.releasedAt = :date AND post.id < :id', {
+          date: post.releasedAt,
+          id: post.id,
+        });
+      }
+      const posts = await query.getMany();
+      // console.log('Posts', posts);
+      return posts;
     },
     tag: async (_, tag) => {
       const posts = await getRepository(Tag)
@@ -55,6 +75,25 @@ export const resolvers: IResolvers = {
       post.user = userId;
       post.title = title;
       post.body = body;
+
+      let processedUrlPath = shortid.generate();
+      processedUrlPath += `/postId=${v4()}`;
+
+      post.urlPath = processedUrlPath;
+
+      // let processedUrlSlug = escapeForUrl(postInput.urlPath);
+      // const urlSlugDuplicate = await Post.findOne({
+      //   where: {
+      //     id: post.id,
+      //     urlPath: processedUrlSlug,
+      //   },
+      // });
+      // if (urlSlugDuplicate) {
+      //   const randomString = generate('abcdefghijklmnopqrstuvwxyz1234567890', 8);
+      //   processedUrlSlug += `-${randomString}`;
+      // }
+      // post.urlPath = processedUrlSlug;
+
       if (tags) {
         post.tags = await Promise.all(tags.map((tag: string) => Tag.create({ tag }).save()));
       }
@@ -73,8 +112,12 @@ export const resolvers: IResolvers = {
       if (!userId) {
         throw new AuthenticationError('Not Logged In');
       }
+      const post = await Post.findOne(id);
+      if (!post) {
+        throw new ApolloError('Post is not found', 'NOT_FOUND');
+      }
       const { title, body, tags, imageUrl } = postInput;
-      const post = new Post();
+      // const post = new Post();
       post.id = id;
       post.user = userId;
       post.title = title;

@@ -33,20 +33,24 @@ export const typeDef = gql`
     id: ID!
     comment: String!
     level: Int
+    like: Int
+    hate: Int
+    deleted: Boolean
     post: Post!
   }
   input PostInput {
     title: String!
     body: String!
+    urlPath: String
     tags: [String]
     imageUrl: [String]
   }
 
   extend type Query {
-    post(id: ID!): Post!
-    posts: [Post]!
+    post(id: ID): Post
+    posts(cursor: ID, take: Int): [Post]
     tag(tag: String): [Tag]
-    tags: [Tag]!
+    tags: [Tag]
   }
 
   extend type Mutation {

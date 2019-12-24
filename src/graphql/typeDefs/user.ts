@@ -24,7 +24,7 @@ export const typeDef = gql`
   }
   type UserToken {
     id: ID!
-    token_id: String
+    tokenId: String
     faulty: Boolean
   }
   type UserEmailConfirm {

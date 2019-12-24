@@ -25,7 +25,7 @@ export class UserProfile extends BaseEntity {
   about!: string;
 
   @Column('varchar', { nullable: true, length: 255 })
-  image_url!: string;
+  imageUrl!: string;
 
   @Column('boolean', { default: false })
   admin!: boolean;

@@ -30,20 +30,20 @@ export class Post extends BaseEntity {
   body!: string;
 
   @Column('boolean', { default: false, nullable: true })
-  is_publish!: boolean;
+  isPublish!: boolean;
 
   @Index()
   @Column({ default: {}, type: 'jsonb', nullable: true })
   meta!: object;
 
   @Column('int', { default: 0 })
-  views_count!: number;
+  viewsCount!: number;
 
   @Column('varchar', { length: 255, nullable: true })
-  short_summary!: string;
+  shortSummary!: string;
 
-  @Column('varchar', { length: 255, nullable: true })
-  url_path!: string;
+  @Column('varchar', { length: 255 })
+  urlPath!: string;
 
   @Index()
   @Column({ type: 'timestamptz', default: () => 'now()', nullable: false })
