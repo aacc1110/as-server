@@ -36,6 +36,7 @@ export const typeDef = gql`
     like: Int
     hate: Int
     deleted: Boolean
+    user: User!
     post: Post!
   }
   input PostInput {
