@@ -10,6 +10,7 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { User } from './User';
 import { Tag } from './Tag';
@@ -59,7 +60,11 @@ export class Post extends BaseEntity {
     eager: true,
     onDelete: 'CASCADE',
   })
+  // @JoinColumn({ name: 'userId' })
   user!: User;
+
+  // @Column('uuid', { nullable: false })
+  // userId!: string;
 
   @ManyToMany(() => Tag, tags => tags.posts, {
     eager: true,

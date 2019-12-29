@@ -9,6 +9,8 @@ import {
   OneToOne,
   Index,
   BeforeInsert,
+  JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 

@@ -47,7 +47,7 @@ export const typeDef = gql`
   }
 
   extend type Query {
-    post(id: ID): Post
+    post(id: ID, userEmail: String, urlPath: String): Post
     posts(cursor: ID, take: Int): [Post]
     tag(tag: String): [Tag]
     tags: [Tag]

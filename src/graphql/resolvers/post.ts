@@ -10,6 +10,7 @@ import { Image } from '../../entity/Image';
 import { Comment } from '../../entity/Comment';
 import shortid from 'shortid';
 import { escapeForUrl } from '../../lib/utils';
+import { User } from '../../entity/User';
 
 export const resolvers: IResolvers = {
   /* Post: {
@@ -22,10 +23,21 @@ export const resolvers: IResolvers = {
     }
   }, */
   Query: {
-    post: async (_, id) => {
-      return await Post.findOne(id);
+    post: async (_, { id, userEmail, urlPath }) => {
+      if (id && !userEmail) {
+        return await Post.findOne(id);
+      }
+      const post = await createQueryBuilder(Post, 'post')
+        .innerJoinAndSelect(User, 'user', 'post.user = user.id')
+        .where('post.urlPath = :urlPath AND user.email = :userEmail', { urlPath, userEmail })
+        .getOne();
+
+      if (!post) {
+        throw new ApolloError('Post is not found', 'NOT_FOUND');
+      }
+      return post;
     },
-    posts: async (_, { cursor, take = 12 }) => {
+    posts: async (_, { cursor, take = 20 }) => {
       /* info.cacheControl.setCacheHint({ maxAge: 300 }); */
       const query = createQueryBuilder(Post, 'post')
         .take(take)
@@ -77,22 +89,9 @@ export const resolvers: IResolvers = {
       post.body = body;
 
       let processedUrlPath = shortid.generate();
-      processedUrlPath += `/postId=${v4()}`;
+      processedUrlPath += `@postId=${v4()}`;
 
       post.urlPath = processedUrlPath;
-
-      // let processedUrlSlug = escapeForUrl(postInput.urlPath);
-      // const urlSlugDuplicate = await Post.findOne({
-      //   where: {
-      //     id: post.id,
-      //     urlPath: processedUrlSlug,
-      //   },
-      // });
-      // if (urlSlugDuplicate) {
-      //   const randomString = generate('abcdefghijklmnopqrstuvwxyz1234567890', 8);
-      //   processedUrlSlug += `-${randomString}`;
-      // }
-      // post.urlPath = processedUrlSlug;
 
       if (tags) {
         post.tags = await Promise.all(tags.map((tag: string) => Tag.create({ tag }).save()));
