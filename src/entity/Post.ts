@@ -43,6 +43,7 @@ export class Post extends BaseEntity {
   @Column('varchar', { length: 255, nullable: true })
   shortSummary!: string;
 
+  @Index()
   @Column('varchar', { length: 255 })
   urlPath!: string;
 

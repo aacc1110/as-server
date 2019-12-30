@@ -24,12 +24,37 @@ export const resolvers: IResolvers = {
   }, */
   Query: {
     post: async (_, { id, userEmail, urlPath }) => {
-      if (id && !userEmail) {
-        return await Post.findOne(id);
+      if (id) {
+        // return await Post.findOne({
+        //   relations: ['comments'],
+        //   where: { id },
+        //   order: {
+        //     comments: {
+        //       id: 'ASC',
+        //     },
+        //   },
+        // });
+        const post = await createQueryBuilder(Post, 'post')
+          .where('post.id = :id', { id })
+          .leftJoinAndSelect('post.comments', 'comment')
+          .andWhere('comment.level = 0')
+          .andWhere('comment.deleted = false')
+          .orderBy({
+            'comment.createdAt': 'DESC',
+          })
+          .getOne();
+
+        return post;
       }
       const post = await createQueryBuilder(Post, 'post')
         .innerJoinAndSelect(User, 'user', 'post.user = user.id')
         .where('post.urlPath = :urlPath AND user.email = :userEmail', { urlPath, userEmail })
+        .leftJoinAndSelect('post.comments', 'comment')
+        .andWhere('comment.level = 0')
+        .andWhere('comment.deleted = false')
+        .orderBy({
+          'comment.createdAt': 'DESC',
+        })
         .getOne();
 
       if (!post) {
@@ -74,6 +99,16 @@ export const resolvers: IResolvers = {
     },
     tags: async () => {
       return await Tag.find({ relations: ['posts'] });
+    },
+    comment: async (_, id) => {
+      return await Comment.findOne(id);
+    },
+    comments: async (_, { postId }) => {
+      console.log(postId);
+      return await Comment.find({
+        where: { postsId: postId },
+        order: { createdAt: 'DESC' },
+      });
     },
   },
   Mutation: {
@@ -173,8 +208,8 @@ export const resolvers: IResolvers = {
       const comments = new Comment();
       comments.comment = comment;
       comments.level = level;
-      comments.posts = postId;
-      comments.user = userId;
+      comments.postsId = postId;
+      comments.userId = userId;
 
       console.log('comments', comments);
 

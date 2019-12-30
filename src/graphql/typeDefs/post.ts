@@ -33,11 +33,11 @@ export const typeDef = gql`
     id: ID!
     comment: String!
     level: Int
+    createdAt: Date
     like: Int
     hate: Int
     deleted: Boolean
     user: User!
-    post: Post!
   }
   input PostInput {
     title: String!
@@ -52,6 +52,8 @@ export const typeDef = gql`
     posts(cursor: ID, take: Int): [Post]
     tag(tag: String): [Tag]
     tags: [Tag]
+    comment(id: ID): Comment
+    comments(postId: ID): [Comment]
   }
 
   extend type Mutation {
