@@ -40,15 +40,19 @@ export class Comment extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
+  @Index()
   @Column('uuid', { nullable: true })
   userId!: string;
   @ManyToOne(() => User, user => user.comments, { onDelete: 'CASCADE' })
   @JoinColumn()
   user!: Promise<User>;
 
+  @Index()
   @Column('uuid', { nullable: true })
-  postsId!: string;
-  @ManyToOne(() => Post, posts => posts.comments, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  posts!: Post;
+  postId!: string;
+  @ManyToOne(() => Post, post => post.comments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'postId' })
+  post!: Promise<Post>;
+
+  subcomments!: Comment[];
 }

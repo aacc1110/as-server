@@ -57,15 +57,14 @@ export class Post extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
+  @Column('uuid', { nullable: false })
+  userId!: string;
   @ManyToOne(() => User, user => user.posts, {
     eager: true,
     onDelete: 'CASCADE',
   })
-  // @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'userId' })
   user!: User;
-
-  // @Column('uuid', { nullable: false })
-  // userId!: string;
 
   @ManyToMany(() => Tag, tags => tags.posts, {
     eager: true,
@@ -81,10 +80,10 @@ export class Post extends BaseEntity {
   @JoinTable()
   images!: Image[];
 
-  @OneToMany(() => Comment, comments => comments.posts, {
+  @OneToMany(() => Comment, comments => comments.post, {
     eager: true,
     cascade: true,
   })
   @JoinTable()
-  comments!: Comment[];
+  comments!: Comment;
 }

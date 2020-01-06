@@ -1,6 +1,6 @@
 import { IResolvers } from 'graphql-tools';
 import 'apollo-cache-control';
-import { getConnection, getRepository, getManager, createQueryBuilder } from 'typeorm';
+import { getConnection, getRepository, createQueryBuilder } from 'typeorm';
 import { AuthenticationError, ApolloError } from 'apollo-server-koa';
 import { v4 } from 'uuid';
 
@@ -9,52 +9,32 @@ import { Tag } from '../../entity/Tag';
 import { Image } from '../../entity/Image';
 import { Comment } from '../../entity/Comment';
 import shortid from 'shortid';
-import { escapeForUrl } from '../../lib/utils';
 import { User } from '../../entity/User';
+import { ApolloContext } from '../../app';
 
-export const resolvers: IResolvers = {
-  /* Post: {
-    user: ({ user }, __, { loader }) => {
-      return loader.load(user.id);
+export const resolvers: IResolvers<any, ApolloContext> = {
+  Post: {
+    user: (post: Post, __, { loaders }) => {
+      if (!post.user) {
+        return loaders.user.load(post.userId);
+      }
+      return post.user;
+    },
+    comments: (post: Post, __, { loaders }) => {
+      if (!post.comments) return post.comments;
+      // return loaders.comments.load(post.id);
+      return loaders.comments.load(post.id);
     },
 
-    tags: ({ tags }, __, { tagLoader }) => {
-      return tagLoader.load(tags.tag);
-    }
-  }, */
+    // tags: ({ tags }, __, { tagLoader }) => {
+    //   return tagLoader.load(tags.tag);
+    // },
+  },
   Query: {
-    post: async (_, { id, userEmail, urlPath }) => {
-      if (id) {
-        // return await Post.findOne({
-        //   relations: ['comments'],
-        //   where: { id },
-        //   order: {
-        //     comments: {
-        //       id: 'ASC',
-        //     },
-        //   },
-        // });
-        const post = await createQueryBuilder(Post, 'post')
-          .where('post.id = :id', { id })
-          .leftJoinAndSelect('post.comments', 'comment')
-          .andWhere('comment.level = 0')
-          .andWhere('comment.deleted = false')
-          .orderBy({
-            'comment.createdAt': 'DESC',
-          })
-          .getOne();
-
-        return post;
-      }
+    post: async (_, { userEmail, urlPath }) => {
       const post = await createQueryBuilder(Post, 'post')
-        .innerJoinAndSelect(User, 'user', 'post.user = user.id')
+        .leftJoinAndSelect(User, 'user', 'post.user = user.id')
         .where('post.urlPath = :urlPath AND user.email = :userEmail', { urlPath, userEmail })
-        .leftJoinAndSelect('post.comments', 'comment')
-        .andWhere('comment.level = 0')
-        .andWhere('comment.deleted = false')
-        .orderBy({
-          'comment.createdAt': 'DESC',
-        })
         .getOne();
 
       if (!post) {
@@ -100,26 +80,30 @@ export const resolvers: IResolvers = {
     tags: async () => {
       return await Tag.find({ relations: ['posts'] });
     },
-    comment: async (_, id) => {
+    comment: async (_, { id }) => {
       return await Comment.findOne(id);
     },
-    comments: async (_, { postId }) => {
-      console.log(postId);
-      return await Comment.find({
-        where: { postsId: postId },
-        order: { createdAt: 'DESC' },
-      });
-    },
+    // comments: async (_, { postId }) => {
+    //   return await Comment.find({
+    //     where: {
+    //       postId,
+    //       deleted: false,
+    //       level: 0,
+    //     },
+
+    //     order: { createdAt: 'DESC' },
+    //   });
+    // },
   },
   Mutation: {
-    writePost: async (_, { postInput }, { userId, redis }) => {
+    writePost: async (_, { postInput }, { userId }) => {
       if (!userId) {
         throw new AuthenticationError('Not Logged In');
       }
       const { title, body, tags, imageUrl } = postInput;
       console.log('WritePost - tags', tags);
       const post = new Post();
-      post.user = userId;
+      post.userId = userId;
       post.title = title;
       post.body = body;
 
@@ -153,7 +137,7 @@ export const resolvers: IResolvers = {
       const { title, body, tags, imageUrl } = postInput;
       // const post = new Post();
       post.id = id;
-      post.user = userId;
+      post.userId = userId;
       post.title = title;
       post.body = body;
 
@@ -176,11 +160,6 @@ export const resolvers: IResolvers = {
         );
       }
       await getRepository(Post).save(post);
-      // await getConnection()
-      //   .createQueryBuilder()
-      //   .relation(Post, 'tags')
-      //   .of(post)
-      //   .add(tags);
 
       return true;
     },
@@ -208,7 +187,7 @@ export const resolvers: IResolvers = {
       const comments = new Comment();
       comments.comment = comment;
       comments.level = level;
-      comments.postsId = postId;
+      comments.postId = postId;
       comments.userId = userId;
 
       console.log('comments', comments);

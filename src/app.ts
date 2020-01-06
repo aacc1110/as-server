@@ -10,12 +10,18 @@ import { redis } from './redis';
 import schema from './graphql/schema';
 import routes from './routes';
 import { checkToken } from './lib/authToken';
+import { Loaders } from './lib/DataLoader/createDataLoders';
+import createLoaders from './lib/DataLoader/createDataLoders';
 
 const app = new Koa();
 const pubsub = new PubSub();
 
 const { REDIS_URL, NODE_ENV } = process.env;
-
+export type ApolloContext = {
+  userId: string | null;
+  loaders: Loaders;
+  ip: string;
+};
 export const startSver = async () => {
   /* setup middlewares */
   if (NODE_ENV === 'development') {
@@ -43,6 +49,7 @@ export const startSver = async () => {
     context: ({ ctx }) => ({
       ctx,
       userId: ctx.state.userId,
+      loaders: createLoaders(),
       pubsub,
       /* loader: loader(),
       tagLoader: tagLoader() */

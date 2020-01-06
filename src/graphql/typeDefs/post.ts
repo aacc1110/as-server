@@ -14,7 +14,7 @@ export const typeDef = gql`
     updatedAt: Date
     createdAt: Date
 
-    user: User!
+    user: User
     tags: [Tag]
     images: [Image]
     comments: [Comment]
@@ -29,16 +29,7 @@ export const typeDef = gql`
     imageUrl: String!
     post: Post!
   }
-  type Comment {
-    id: ID!
-    comment: String!
-    level: Int
-    createdAt: Date
-    like: Int
-    hate: Int
-    deleted: Boolean
-    user: User!
-  }
+
   input PostInput {
     title: String!
     body: String!

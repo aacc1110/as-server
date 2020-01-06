@@ -7,7 +7,7 @@
 		"apollo-server-koa": "^2.9.7",
 		"aws-sdk": "^2.485.0",
 		"bcryptjs": "^2.4.3",
-		"dataloader": "^1.4.0",
+		"dataloader": "^2.0.0",
 		"dotenv": "^8.0.0",
 		"global": "^4.4.0",
 		"graphql": "^14.5.8",
