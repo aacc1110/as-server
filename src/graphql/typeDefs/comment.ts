@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-koa';
 export const typeDef = gql`
   type Comment {
     id: ID!
-    comment: String!
+    text: String!
     level: Int
     createdAt: Date
     like: Int

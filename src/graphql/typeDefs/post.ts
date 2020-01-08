@@ -51,6 +51,6 @@ export const typeDef = gql`
     writePost(postInput: PostInput): Boolean!
     updatePost(id: ID!, postInput: PostInput): Boolean!
     deletePost(id: ID!): Boolean!
-    writeComment(postId: ID!, comment: String!, level: Int): Boolean!
+    writeComment(postId: ID!, text: String!, level: Int): Boolean!
   }
 `;

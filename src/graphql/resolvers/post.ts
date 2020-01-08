@@ -181,11 +181,11 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         .remove(Promise.all(tags.map(tag => Tag.delete(tag.id))));
       return true;
     },
-    writeComment: async (_, { postId, comment, level }, { userId }) => {
+    writeComment: async (_, { postId, text, level }, { userId }) => {
       if (!userId || !postId) return false;
 
       const comments = new Comment();
-      comments.comment = comment;
+      comments.text = text;
       comments.level = level;
       comments.postId = postId;
       comments.userId = userId;

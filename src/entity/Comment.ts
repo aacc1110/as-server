@@ -19,7 +19,7 @@ export class Comment extends BaseEntity {
   id!: string;
 
   @Column('text', { nullable: true })
-  comment!: string;
+  text!: string;
 
   @Column('int', { default: 0 })
   level!: number;
