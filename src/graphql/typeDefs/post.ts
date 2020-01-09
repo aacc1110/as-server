@@ -18,6 +18,7 @@ export const typeDef = gql`
     tags: [Tag]
     images: [Image]
     comments: [Comment]
+    commentsCount: Int
   }
   type Tag {
     id: ID!
@@ -43,14 +44,11 @@ export const typeDef = gql`
     posts(cursor: ID, take: Int): [Post]
     tag(tag: String): [Tag]
     tags: [Tag]
-    comment(id: ID): Comment
-    comments(postId: ID): [Comment]
   }
 
   extend type Mutation {
     writePost(postInput: PostInput): Boolean!
     updatePost(id: ID!, postInput: PostInput): Boolean!
     deletePost(id: ID!): Boolean!
-    writeComment(postId: ID!, text: String!, level: Int): Boolean!
   }
 `;

@@ -16,8 +16,8 @@ export const createCommentsLoader = () =>
     const posts = await createQueryBuilder(Post, 'post')
       .leftJoinAndSelect('post.comments', 'comment')
       .whereInIds(postIds)
-      .andWhere('level = 0')
-      .andWhere('deleted = false')
+      .andWhere('comment.level = 0')
+      .andWhere('comment.deleted = false or comment.hasReplies = true')
       .orderBy({
         'comment.createdAt': 'DESC',
       })

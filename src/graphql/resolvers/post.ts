@@ -7,10 +7,11 @@ import { v4 } from 'uuid';
 import { Post } from '../../entity/Post';
 import { Tag } from '../../entity/Tag';
 import { Image } from '../../entity/Image';
-import { Comment } from '../../entity/Comment';
+
 import shortid from 'shortid';
 import { User } from '../../entity/User';
 import { ApolloContext } from '../../app';
+import { Comment } from '../../entity/Comment';
 
 export const resolvers: IResolvers<any, ApolloContext> = {
   Post: {
@@ -25,10 +26,9 @@ export const resolvers: IResolvers<any, ApolloContext> = {
       // return loaders.comments.load(post.id);
       return loaders.comments.load(post.id);
     },
-
-    // tags: ({ tags }, __, { tagLoader }) => {
-    //   return tagLoader.load(tags.tag);
-    // },
+    commentsCount: (post: Post) => {
+      return Comment.count({ postId: post.id, deleted: false });
+    },
   },
   Query: {
     post: async (_, { userEmail, urlPath }) => {
@@ -80,20 +80,6 @@ export const resolvers: IResolvers<any, ApolloContext> = {
     tags: async () => {
       return await Tag.find({ relations: ['posts'] });
     },
-    comment: async (_, { id }) => {
-      return await Comment.findOne(id);
-    },
-    // comments: async (_, { postId }) => {
-    //   return await Comment.find({
-    //     where: {
-    //       postId,
-    //       deleted: false,
-    //       level: 0,
-    //     },
-
-    //     order: { createdAt: 'DESC' },
-    //   });
-    // },
   },
   Mutation: {
     writePost: async (_, { postInput }, { userId }) => {
@@ -179,21 +165,6 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         .relation(Post, 'tags')
         .of(post)
         .remove(Promise.all(tags.map(tag => Tag.delete(tag.id))));
-      return true;
-    },
-    writeComment: async (_, { postId, text, level }, { userId }) => {
-      if (!userId || !postId) return false;
-
-      const comments = new Comment();
-      comments.text = text;
-      comments.level = level;
-      comments.postId = postId;
-      comments.userId = userId;
-
-      console.log('comments', comments);
-
-      await getRepository(Comment).save(comments);
-
       return true;
     },
   },

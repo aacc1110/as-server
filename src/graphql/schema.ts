@@ -1,4 +1,5 @@
 import { makeExecutableSchema, IResolvers } from 'graphql-tools';
+import merge from 'lodash/merge';
 import { gql } from 'apollo-server-koa';
 import * as userT from './typeDefs/user';
 import * as userR from './resolvers/user';
@@ -43,7 +44,7 @@ const resolvers: IResolvers = {
 
 const schema = makeExecutableSchema({
   typeDefs: [typeDef, userT.typeDef, postT.typeDef, commentT.typeDef],
-  resolvers: [resolvers, userR.resolvers, postR.resolvers, commentR.resolvers],
+  resolvers: merge(resolvers, userR.resolvers, postR.resolvers, commentR.resolvers),
 });
 /* addMockFunctionsToSchema({ schema }); */
 

@@ -80,7 +80,7 @@ export class Post extends BaseEntity {
   @JoinTable()
   images!: Image[];
 
-  @OneToMany(() => Comment, comments => comments.post, {
+  @OneToMany(() => Comment, comment => comment.post, {
     eager: true,
     cascade: true,
   })

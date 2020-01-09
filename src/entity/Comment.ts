@@ -18,6 +18,12 @@ export class Comment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column('uuid', { nullable: true })
+  replyTo!: string;
+
+  @Column({ default: false })
+  hasReplies!: boolean;
+
   @Column('text', { nullable: true })
   text!: string;
 
@@ -45,14 +51,14 @@ export class Comment extends BaseEntity {
   userId!: string;
   @ManyToOne(() => User, user => user.comments, { onDelete: 'CASCADE' })
   @JoinColumn()
-  user!: Promise<User>;
+  user!: User;
 
   @Index()
   @Column('uuid', { nullable: true })
   postId!: string;
   @ManyToOne(() => Post, post => post.comments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })
-  post!: Promise<Post>;
+  post!: Post;
 
   subcomments!: Comment[];
 }
