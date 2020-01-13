@@ -6,13 +6,19 @@ import { normalize } from '../utils';
 import { Comment } from '../../entity/Comment';
 
 export const createUserLoader = () =>
-  new DataLoader<string, User>((ids: any) => {
-    const users = User.findByIds(ids);
-    return users;
+  new DataLoader<string, User>(async userIds => {
+    const users = await createQueryBuilder(User, 'user')
+      .whereInIds(userIds)
+      .getMany();
+
+    const normalized = normalize(users, user => user.id);
+    return userIds.map(id => normalized[id]);
+
+    // return User.findByIds(ids);
   });
 
 export const createCommentsLoader = () =>
-  new DataLoader<string, Comment | never[]>(async postIds => {
+  new DataLoader<string, Comment[]>(async postIds => {
     const posts = await createQueryBuilder(Post, 'post')
       .leftJoinAndSelect('post.comments', 'comment')
       .whereInIds(postIds)
@@ -26,5 +32,6 @@ export const createCommentsLoader = () =>
     const normalized = normalize<Post>(posts);
 
     const commentsGroups = postIds.map(id => (normalized[id] ? normalized[id].comments : []));
+    console.log('commentsGroups', commentsGroups);
     return commentsGroups;
   });

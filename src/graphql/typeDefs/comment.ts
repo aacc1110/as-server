@@ -13,7 +13,6 @@ export const typeDef = gql`
     replies: [Comment]
     repliesCount: Int
     user: User
-    post: Post
   }
   extend type Query {
     comment(id: ID): Comment
@@ -21,5 +20,6 @@ export const typeDef = gql`
   }
   extend type Mutation {
     writeComment(id: ID, postId: ID!, text: String!): Boolean!
+    removeComment(id: ID!, postId: ID): Boolean
   }
 `;

@@ -24,6 +24,7 @@ export const resolvers: IResolvers<any, ApolloContext> = {
     comments: (post: Post, __, { loaders }) => {
       if (!post.comments) return post.comments;
       // return loaders.comments.load(post.id);
+      console.log('postComments', post.comments);
       return loaders.comments.load(post.id);
     },
     commentsCount: (post: Post) => {
@@ -137,7 +138,7 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         post.tags = await Promise.all(tags.map((tag: string) => Tag.create({ tag }).save()));
       }
       if (imageUrl) {
-        const delImage = await Image.find({ posts: { id } });
+        const delImage = await Image.find({ post: { id } });
         if (delImage.length > 0) {
           await Image.remove(delImage);
         }

@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   Index,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Post } from './Post';
 
@@ -26,5 +27,6 @@ export class Tag extends BaseEntity {
   updatedAt!: Date;
 
   @ManyToMany(() => Post, posts => posts.tags)
+  @JoinTable()
   posts!: Post[];
 }

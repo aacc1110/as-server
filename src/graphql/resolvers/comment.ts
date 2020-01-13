@@ -4,29 +4,34 @@ import { Comment } from '../../entity/Comment';
 import { getRepository } from 'typeorm';
 import { AuthenticationError, ApolloError } from 'apollo-server-koa';
 import { Post } from '../../entity/Post';
+import { PostScore } from '../../entity/PostScore';
 
 export const resolvers: IResolvers<any, ApolloContext> = {
   Comment: {
-    user: (comment: Comment, __, { loaders }) => {
+    user: async (comment: Comment, __, { loaders }) => {
       if (comment.deleted) {
         return null;
       }
       if (comment.user) return comment.user;
-      const user = loaders.user.load(comment.userId);
-      return user;
+      // return await User.findOne(comment.userId);
+      return loaders.user.load(comment.userId);
     },
     replies: async (comment: Comment) => {
       if (!comment.hasReplies) return [];
-      const comments = await Comment.find({
+      return await Comment.find({
         where: {
           replyTo: comment.id,
           deleted: false,
         },
         order: {
-          createdAt: 'ASC',
+          createdAt: 'DESC',
         },
       });
-      return comments;
+    },
+    repliesCount: async (comment: Comment) => {
+      console.log('comment.hasReplies', comment.hasReplies);
+      if (!comment.hasReplies) return 0;
+      return Comment.count({ replyTo: comment.id, deleted: false });
     },
   },
   Query: {
@@ -39,7 +44,7 @@ export const resolvers: IResolvers<any, ApolloContext> = {
           replyTo: id,
         },
         order: {
-          createdAt: 'ASC',
+          createdAt: 'DESC',
         },
       });
     },
@@ -72,13 +77,57 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         await commentRepo.save(commentReplyTo);
       }
 
-      comment.text = text;
+      comment.text = text.trim();
       comment.postId = postId;
       comment.userId = userId;
 
       console.log('comment', comment);
 
       await commentRepo.save(comment);
+
+      const score = await PostScore.findOne({ postId, userId, type: 'COMMENT' });
+      console.log('Isscore:', score);
+      if (score) {
+        const count = score.score;
+        const scoreId = score.id;
+        await PostScore.update(scoreId, { score: count + 1 });
+      } else {
+        console.log('Isscore:', score);
+        const newScore = new PostScore();
+        newScore.userId = userId;
+        newScore.postId = postId;
+        newScore.score = 1;
+        newScore.type = 'COMMENT';
+        await PostScore.save(newScore);
+      }
+
+      return true;
+    },
+    removeComment: async (_, { id, postId }, { userId }) => {
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
+      const comment = await Comment.findOne(id);
+
+      if (!comment) {
+        throw new ApolloError('Comment not founc', 'NOT_FOUND');
+      }
+
+      if (userId !== comment.userId) {
+        throw new ApolloError('No permission');
+      }
+
+      // comment.deleted = true;
+      await Comment.delete(id);
+
+      const score = await PostScore.findOne({ postId, userId, type: 'COMMENT' });
+      if (score) {
+        const count = score.score;
+        const scoreId = score.id;
+        await PostScore.update(scoreId, { score: count - 1 });
+      } else {
+        throw new ApolloError('Not post_score');
+      }
 
       return true;
     },

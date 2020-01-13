@@ -16,6 +16,7 @@ import { User } from './User';
 import { Tag } from './Tag';
 import { Image } from './Image';
 import { Comment } from './Comment';
+import { PostScore } from './PostScore';
 
 @Entity('posts', { synchronize: true })
 export class Post extends BaseEntity {
@@ -73,17 +74,24 @@ export class Post extends BaseEntity {
   @JoinTable({ name: 'posts_tags' })
   tags!: Tag[];
 
-  @OneToMany(() => Image, images => images.posts, {
+  @OneToMany(() => Image, images => images.post, {
     eager: true,
     cascade: true,
   })
   @JoinTable()
   images!: Image[];
 
-  @OneToMany(() => Comment, comment => comment.post, {
+  @OneToMany(() => Comment, comments => comments.post, {
     eager: true,
     cascade: true,
   })
   @JoinTable()
-  comments!: Comment;
+  comments!: Comment[];
+
+  @OneToMany(() => PostScore, postscore => postscore.post, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinTable()
+  postscore!: PostScore;
 }

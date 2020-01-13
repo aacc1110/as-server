@@ -9,8 +9,6 @@ import {
   OneToOne,
   Index,
   BeforeInsert,
-  JoinTable,
-  JoinColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
@@ -54,8 +52,8 @@ export class User extends BaseEntity {
   @OneToMany(() => Post, post => post.user, { cascade: true })
   posts!: Post[];
 
-  @OneToMany(() => Comment, comment => comment.user, { cascade: true })
-  comments!: Promise<Comment[]>;
+  @OneToMany(() => Comment, comments => comments.user, { cascade: true })
+  comments!: Comment[];
 
   @BeforeInsert()
   async hashedPasswordInsert() {
