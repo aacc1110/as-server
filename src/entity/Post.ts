@@ -11,12 +11,15 @@ import {
   JoinTable,
   OneToMany,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { User } from './User';
 import { Tag } from './Tag';
 import { Image } from './Image';
 import { Comment } from './Comment';
 import { PostScore } from './PostScore';
+import { PostLike } from './PostLike';
+import { PostSave } from './PostSave';
 
 @Entity('posts', { synchronize: true })
 export class Post extends BaseEntity {
@@ -30,6 +33,9 @@ export class Post extends BaseEntity {
   @Index()
   @Column('text', { nullable: true })
   body!: string;
+
+  @Column({ default: 0 })
+  likes!: number;
 
   @Column('boolean', { default: false, nullable: true })
   isPublish!: boolean;
@@ -93,5 +99,19 @@ export class Post extends BaseEntity {
     cascade: true,
   })
   @JoinTable()
-  postscore!: PostScore;
+  postscore!: PostScore[];
+
+  // @OneToMany(() => PostLike, postlike => postlike.post, {
+  //   eager: true,
+  //   cascade: true,
+  // })
+  // @JoinTable()
+  // postlike!: PostLike[];
+
+  @OneToMany(() => PostSave, postsave => postsave.post, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinTable()
+  postsave!: PostSave[];
 }

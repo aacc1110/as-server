@@ -16,6 +16,10 @@ import { UserProfile } from './UserProfile';
 import { UserToken } from './UserToken';
 import { Post } from './Post';
 import { Comment } from './Comment';
+import { PostLike } from './PostLike';
+import { PostScore } from './PostScore';
+import { PostSave } from './PostSave';
+import { PostRead } from './PostRead';
 
 @Entity('users', { synchronize: true })
 export class User extends BaseEntity {
@@ -54,6 +58,18 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Comment, comments => comments.user, { cascade: true })
   comments!: Comment[];
+
+  @OneToMany(() => PostLike, postlike => postlike.user, { cascade: true })
+  postlike!: PostLike[];
+
+  @OneToMany(() => PostRead, postread => postread.user, { cascade: true })
+  postread!: PostRead[];
+
+  @OneToMany(() => PostScore, postscore => postscore.user, { cascade: true })
+  postscore!: PostScore[];
+
+  @OneToMany(() => PostSave, postsave => postsave.user, { cascade: true })
+  postsave!: PostSave[];
 
   @BeforeInsert()
   async hashedPasswordInsert() {

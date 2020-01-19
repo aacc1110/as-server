@@ -103,12 +103,12 @@ export const resolvers: IResolvers<any, ApolloContext> = {
 
       return true;
     },
-    removeComment: async (_, { id, postId }, { userId }) => {
+    editComment: async (_, { id, text }, { userId }) => {
       if (!userId) {
         throw new AuthenticationError('Not Logged In');
       }
-      const comment = await Comment.findOne(id);
 
+      const comment = await Comment.findOne(id);
       if (!comment) {
         throw new ApolloError('Comment not founc', 'NOT_FOUND');
       }
@@ -117,8 +117,25 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         throw new ApolloError('No permission');
       }
 
-      // comment.deleted = true;
-      await Comment.delete(id);
+      await Comment.update({ id }, { text });
+      return true;
+    },
+    removeComment: async (_, { id, postId }, { userId }) => {
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
+
+      const comment = await Comment.findOne(id);
+      if (!comment) {
+        throw new ApolloError('Comment not founc', 'NOT_FOUND');
+      }
+
+      if (userId !== comment.userId) {
+        throw new ApolloError('No permission');
+      }
+
+      comment.deleted = true;
+      await Comment.save(comment);
 
       const score = await PostScore.findOne({ postId, userId, type: 'COMMENT' });
       if (score) {

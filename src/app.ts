@@ -50,6 +50,7 @@ export const startSver = async () => {
       ctx,
       userId: ctx.state.userId,
       loaders: createLoaders(),
+      ip: ctx.request.ip,
       pubsub,
       /* loader: loader(),
       tagLoader: tagLoader() */

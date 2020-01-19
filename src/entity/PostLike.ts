@@ -12,17 +12,10 @@ import {
 import { User } from './User';
 import { Post } from './Post';
 
-@Entity('post_score', { synchronize: true })
-export class PostScore extends BaseEntity {
+@Entity('post_likes', { synchronize: true })
+export class PostLike extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
-
-  @Index()
-  @Column('varchar', { length: 255, nullable: true })
-  type!: string;
-
-  @Column('float8', { default: 0 })
-  score!: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
@@ -31,16 +24,16 @@ export class PostScore extends BaseEntity {
   updatedAt!: Date;
 
   @Index()
-  @Column('uuid', { nullable: true })
+  @Column('uuid')
   userId!: string;
-  @ManyToOne(() => User, user => user.postscore, { eager: true, onDelete: 'CASCADE' })
-  @JoinColumn()
+  @ManyToOne(() => User, user => user.postlike, { eager: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user!: User;
 
   @Index()
-  @Column('uuid', { nullable: true })
+  @Column('uuid')
   postId!: string;
-  @ManyToOne(() => Post, post => post.postscore, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Post, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })
   post!: Post;
 }

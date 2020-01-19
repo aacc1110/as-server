@@ -20,6 +20,7 @@ export const typeDef = gql`
   }
   extend type Mutation {
     writeComment(id: ID, postId: ID!, text: String!): Boolean!
+    editComment(id: ID!, text: String!): Boolean
     removeComment(id: ID!, postId: ID): Boolean
   }
 `;

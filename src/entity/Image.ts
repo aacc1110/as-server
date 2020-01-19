@@ -8,6 +8,7 @@ import {
   Index,
   ManyToOne,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 
 import { Post } from './Post';
@@ -28,6 +29,6 @@ export class Image extends BaseEntity {
   updatedAt!: Date;
 
   @ManyToOne(() => Post, post => post.images, { onDelete: 'CASCADE' })
-  @JoinTable()
+  @JoinColumn()
   post!: Post;
 }

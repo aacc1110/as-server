@@ -23,7 +23,8 @@ export const createCommentsLoader = () =>
       .leftJoinAndSelect('post.comments', 'comment')
       .whereInIds(postIds)
       .andWhere('comment.level = 0')
-      .andWhere('comment.deleted = false or comment.hasReplies = true')
+      .andWhere('comment.deleted = false')
+      // .andWhere('comment.deleted = false or comment.hasReplies = true')
       .orderBy({
         'comment.createdAt': 'DESC',
       })
@@ -32,6 +33,19 @@ export const createCommentsLoader = () =>
     const normalized = normalize<Post>(posts);
 
     const commentsGroups = postIds.map(id => (normalized[id] ? normalized[id].comments : []));
-    console.log('commentsGroups', commentsGroups);
     return commentsGroups;
   });
+
+// export const createTagsLoader = () =>
+//   new DataLoader<string, Tag[]>(async postIds => {
+//     const postsTags = await createQueryBuilder('posts_tags')
+//       .where('postsId IN (:...postIds)', { postIds })
+//       .leftJoinAndSelect('posts_tags.tag', 'tag')
+//       .orderBy('postsId', 'ASC')
+//       .orderBy('tag.name', 'ASC')
+//       .getMany();
+
+//     return groupById<PostsTags>(postIds, postsTags, pt => pt.postId).map(array =>
+//       array.map(pt => pt.tag),
+//     );
+//   });

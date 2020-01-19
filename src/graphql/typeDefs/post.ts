@@ -5,6 +5,7 @@ export const typeDef = gql`
     id: ID!
     title: String!
     body: String!
+    likes: Int
     isPublish: Boolean
     meta: JSON
     viewsCount: Int
@@ -17,6 +18,8 @@ export const typeDef = gql`
     user: User
     tags: [Tag]
     images: [Image]
+    liked: Boolean
+    readIt: Boolean
     comments: [Comment]
     commentsCount: Int
   }
@@ -50,5 +53,8 @@ export const typeDef = gql`
     writePost(postInput: PostInput): Boolean!
     updatePost(id: ID!, postInput: PostInput): Boolean!
     deletePost(id: ID!): Boolean!
+    likePost(id: ID!): Post
+    unlikePost(id: ID!): Post
+    postRead(id: ID!): Boolean
   }
 `;
