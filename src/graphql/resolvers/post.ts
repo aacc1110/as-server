@@ -16,6 +16,7 @@ import { PostLike } from '../../entity/PostLike';
 import { PostScore } from '../../entity/PostScore';
 import hash from '../../lib/hash';
 import { PostRead } from '../../entity/PostRead';
+import { PostSave } from '../../entity/PostSave';
 
 export const resolvers: IResolvers<any, ApolloContext> = {
   Post: {
@@ -51,6 +52,12 @@ export const resolvers: IResolvers<any, ApolloContext> = {
       }
       const readIt = await PostRead.findOne({ postId: post.id, ipHash });
       return !!readIt;
+    },
+    saved: async (post: Post, __, { userId }) => {
+      if (userId) {
+        const saved = await PostSave.findOne({ postId: post.id, userId });
+        return !!saved;
+      }
     },
   },
   Query: {
@@ -312,6 +319,26 @@ export const resolvers: IResolvers<any, ApolloContext> = {
         }
         PostScore.save(score);
       }
+      return true;
+    },
+    postSave: async (_, { id }, { userId }) => {
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
+      const post = await Post.findOne(id);
+      if (!post) {
+        throw new ApolloError('Post not found', 'NOT_FOUND');
+      }
+
+      const saved = await PostSave.findOne({ postId: id, userId });
+      console.log('saved:', saved);
+      if (saved) return false;
+
+      const postSave = new PostSave();
+      postSave.userId = userId;
+      postSave.postId = id;
+
+      await PostSave.save(postSave);
       return true;
     },
   },

@@ -11,11 +11,21 @@ import { UserToken } from '../../entity/UserToken';
 import { UserEmailConfirm } from '../../entity/UserEmailConfirm';
 import sendEmail from '../../lib/sendEmail';
 import { createAuthEmail } from '../../lib/emailTemplate';
+import { PostSave } from '../../entity/PostSave';
 
 export const resolvers: IResolvers = {
   Subscription: {
     addUser: async (_, { id, email }) => {
       return await User.findOne({ id, email }, { relations: ['posts'] });
+    },
+  },
+  User: {
+    postSave: async (user: User, __, { userId }) => {
+      if (!userId) {
+        throw new AuthenticationError('Not Logged In');
+      }
+      const save = await PostSave.find({ userId: user.id });
+      return save;
     },
   },
   Query: {

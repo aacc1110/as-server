@@ -11,7 +11,6 @@ import {
   JoinTable,
   OneToMany,
   JoinColumn,
-  OneToOne,
 } from 'typeorm';
 import { User } from './User';
 import { Tag } from './Tag';
@@ -64,6 +63,7 @@ export class Post extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
+  @Index()
   @Column('uuid', { nullable: false })
   userId!: string;
   @ManyToOne(() => User, user => user.posts, {

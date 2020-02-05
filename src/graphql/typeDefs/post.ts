@@ -20,6 +20,7 @@ export const typeDef = gql`
     images: [Image]
     liked: Boolean
     readIt: Boolean
+    saved: Boolean
     comments: [Comment]
     commentsCount: Int
   }
@@ -56,5 +57,6 @@ export const typeDef = gql`
     likePost(id: ID!): Post
     unlikePost(id: ID!): Post
     postRead(id: ID!): Boolean
+    postSave(id: ID!): Boolean
   }
 `;

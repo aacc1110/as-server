@@ -27,7 +27,7 @@ export class PostSave extends BaseEntity {
   @Column('uuid', { nullable: true })
   userId!: string;
   @ManyToOne(() => User, user => user.postsave, { eager: true, onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'userId' })
   user!: User;
 
   @Index()
@@ -35,5 +35,5 @@ export class PostSave extends BaseEntity {
   postId!: string;
   @ManyToOne(() => Post, post => post.postsave, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })
-  post!: Post;
+  post!: Post[];
 }

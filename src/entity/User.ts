@@ -51,7 +51,7 @@ export class User extends BaseEntity {
   @OneToOne(() => UserToken, userToken => userToken.user, {
     cascade: true,
   })
-  userToken!: Promise<UserToken>;
+  userToken!: UserToken;
 
   @OneToMany(() => Post, post => post.user, { cascade: true })
   posts!: Post[];

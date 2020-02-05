@@ -14,6 +14,12 @@ export const typeDef = gql`
     userProfile: UserProfile
     userToken: UserToken!
     posts: [Post!]
+    postSave: [PostSave]
+  }
+  type PostSave {
+    id: ID!
+    user: User
+    post: Post
   }
   type UserProfile {
     id: ID!
@@ -51,7 +57,7 @@ export const typeDef = gql`
   }
 
   extend type Query {
-    me: User
+    me: User!
     user(email: String!): User
     users: [User!]!
     userEmailConfirm(code: String!): UserEmailConfirm
