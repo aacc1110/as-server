@@ -1,12 +1,11 @@
 import { IResolvers } from 'graphql-tools';
-import { ApolloContext } from '../../app';
 import { Comment } from '../../entity/Comment';
 import { getRepository } from 'typeorm';
 import { AuthenticationError, ApolloError } from 'apollo-server-koa';
 import { Post } from '../../entity/Post';
 import { PostScore } from '../../entity/PostScore';
 
-export const resolvers: IResolvers<any, ApolloContext> = {
+export const resolvers: IResolvers = {
   Comment: {
     user: async (comment: Comment, __, { loaders }) => {
       if (comment.deleted) {
