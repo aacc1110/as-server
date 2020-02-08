@@ -4,9 +4,7 @@ import bodyParser from 'koa-bodyparser';
 import logger from 'koa-logger';
 import { ApolloServer, PubSub } from 'apollo-server-koa';
 import { createConnection } from 'typeorm';
-import { RedisPubSub } from 'graphql-redis-subscriptions';
 
-import { redis } from './redis';
 import schema from './graphql/schema';
 import routes from './routes';
 import { checkToken } from './lib/authToken';
@@ -16,7 +14,7 @@ import createLoaders from './lib/DataLoader/createDataLoders';
 const app = new Koa();
 const pubsub = new PubSub();
 
-const { REDIS_URL, NODE_ENV } = process.env;
+const { NODE_ENV } = process.env;
 // export type ApolloContext = {
 //   userId: string | null;
 //   loaders: Loaders;
@@ -32,14 +30,6 @@ export const startSver = async () => {
 
   app.use(routes.routes()).use(routes.allowedMethods());
 
-  const pubsubRedis = new RedisPubSub(
-    NODE_ENV === 'production'
-      ? {
-          connection: REDIS_URL as any,
-        }
-      : {},
-  );
-
   const server = new ApolloServer({
     schema,
     rootValue: true,
@@ -54,8 +44,6 @@ export const startSver = async () => {
       pubsub,
       /* loader: loader(),
       tagLoader: tagLoader() */
-      redis,
-      pubsubRedis,
     }),
     tracing: NODE_ENV === 'development',
   });
