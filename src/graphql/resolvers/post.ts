@@ -10,7 +10,6 @@ import { Image } from '../../entity/Image';
 
 import shortid from 'shortid';
 import { User } from '../../entity/User';
-import { ApolloContext } from '../../app';
 import { Comment } from '../../entity/Comment';
 import { PostLike } from '../../entity/PostLike';
 import { PostScore } from '../../entity/PostScore';
@@ -18,7 +17,7 @@ import hash from '../../lib/hash';
 import { PostRead } from '../../entity/PostRead';
 import { PostSave } from '../../entity/PostSave';
 
-export const resolvers: IResolvers<any, ApolloContext> = {
+export const resolvers: IResolvers = {
   Post: {
     user: (post: Post, __, { loaders }) => {
       if (!post.user) {
