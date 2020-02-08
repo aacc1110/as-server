@@ -9,6 +9,6 @@ node_modules
 .webpack
 webpack.config.js
 
-# .env
-# .env.development
+.env
+.env.development
 apollo.config.js
