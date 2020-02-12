@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import logger from 'koa-logger';
-import { ApolloServer, PubSub } from 'apollo-server-koa';
+import { ApolloServer } from 'apollo-server-koa';
 import { createConnection } from 'typeorm';
 
 import schema from './graphql/schema';
@@ -12,7 +12,7 @@ import { checkToken } from './lib/authToken';
 import createLoaders from './lib/DataLoader/createDataLoders';
 
 const app = new Koa();
-const pubsub = new PubSub();
+// const pubsub = new PubSub();
 
 const { NODE_ENV } = process.env;
 // export type ApolloContext = {
@@ -41,7 +41,7 @@ export const startSver = async () => {
       userId: ctx.state.userId,
       loaders: createLoaders(),
       ip: ctx.request.ip,
-      pubsub,
+      // pubsub,
       /* loader: loader(),
       tagLoader: tagLoader() */
     }),

@@ -65,7 +65,7 @@
 		"ts-loader": "^6.2.0",
 		"ts-node": "^8.4.1",
 		"ts-node-dev": "^1.0.0-pre.43",
-		"typescript": "^3.7.3"
+		"typescript": "^3.7.5"
 	},
 	"scripts": {
 		"dev": "cross-env NODE_ENV=development ts-node-dev --respawn ./src/server.ts",
