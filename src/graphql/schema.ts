@@ -7,6 +7,8 @@ import * as postT from './typeDefs/post';
 import * as postR from './resolvers/post';
 import * as commentT from './typeDefs/comment';
 import * as commentR from './resolvers/comment';
+import * as seriesT from './typeDefs/series';
+import * as seriesR from './resolvers/series';
 import DateScalar from './scalar/DateScalar';
 
 const typeDef = gql`
@@ -43,8 +45,14 @@ const resolvers: IResolvers = {
 };
 
 const schema = makeExecutableSchema({
-  typeDefs: [typeDef, userT.typeDef, postT.typeDef, commentT.typeDef],
-  resolvers: merge(resolvers, userR.resolvers, postR.resolvers, commentR.resolvers),
+  typeDefs: [typeDef, userT.typeDef, postT.typeDef, commentT.typeDef, seriesT.typeDef],
+  resolvers: merge(
+    resolvers,
+    userR.resolvers,
+    postR.resolvers,
+    commentR.resolvers,
+    seriesR.resolvers,
+  ),
 });
 /* addMockFunctionsToSchema({ schema }); */
 

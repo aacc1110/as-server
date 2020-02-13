@@ -16,6 +16,8 @@ import { PostScore } from '../../entity/PostScore';
 import hash from '../../lib/hash';
 import { PostRead } from '../../entity/PostRead';
 import { PostSave } from '../../entity/PostSave';
+import { SeriesPosts, appendToSeries } from '../../entity/SeriesPosts';
+import { Series } from '../../entity/Series';
 
 export const resolvers: IResolvers = {
   Post: {
@@ -24,6 +26,16 @@ export const resolvers: IResolvers = {
         return loaders.user.load(post.userId);
       }
       return post.user;
+    },
+    series: async (parent: Post) => {
+      const seriesPostsRepo = getRepository(SeriesPosts);
+      const seriesPost = await seriesPostsRepo
+        .createQueryBuilder('seriesPosts')
+        .leftJoinAndSelect('seriesPosts.series', 'series')
+        .where('seriesPosts.postId = :id', { id: parent.id })
+        .getOne();
+      if (!seriesPost) return null;
+      return seriesPost.series;
     },
     comments: (post: Post, __, { loaders }) => {
       if (!post.comments) return post.comments;
@@ -115,7 +127,7 @@ export const resolvers: IResolvers = {
       if (!userId) {
         throw new AuthenticationError('Not Logged In');
       }
-      const { title, body, tags, imageUrl } = postInput;
+      const { title, body, tags, imageUrl, seriesId } = postInput;
       console.log('WritePost - tags', tags);
       const post = new Post();
       post.userId = userId;
@@ -135,9 +147,23 @@ export const resolvers: IResolvers = {
           imageUrl.map((imageUrl: string) => Image.create({ imageUrl }).save()),
         );
       }
+      // Check series
+
+      if (seriesId) {
+        const series = await Series.findOne(seriesId);
+        if (!series) {
+          throw new ApolloError('Series not found', 'NOT_FOUND');
+        }
+        if (series.userId !== userId) {
+          throw new ApolloError('This series is not yours', 'NO_PERMISSION');
+        }
+      }
+
       await getRepository(Post).save(post);
 
-      // await redis.lpush('PostList', JSON.stringify(post));
+      if (seriesId) {
+        await appendToSeries(seriesId, post.id);
+      }
 
       return true;
     },
