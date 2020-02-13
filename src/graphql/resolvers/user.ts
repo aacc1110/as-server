@@ -12,6 +12,8 @@ import { UserEmailConfirm } from '../../entity/UserEmailConfirm';
 import sendEmail from '../../lib/sendEmail';
 import { createAuthEmail } from '../../lib/emailTemplate';
 import { PostSave } from '../../entity/PostSave';
+import { getRepository } from 'typeorm';
+import { Series } from '../../entity/Series';
 
 export const resolvers: IResolvers = {
   Subscription: {
@@ -26,6 +28,18 @@ export const resolvers: IResolvers = {
       }
       const save = await PostSave.find({ userId: user.id });
       return save;
+    },
+    seriesList: async (user: User) => {
+      const seriesRepo = getRepository(Series);
+      const seriesList = await seriesRepo.find({
+        where: {
+          userId: user.id,
+        },
+        order: {
+          updatedAt: 'DESC',
+        },
+      });
+      return seriesList;
     },
   },
   Query: {

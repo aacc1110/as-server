@@ -27,15 +27,14 @@ export const resolvers: IResolvers = {
       }
       return post.user;
     },
-    series: async (parent: Post) => {
-      const seriesPostsRepo = getRepository(SeriesPosts);
-      const seriesPost = await seriesPostsRepo
-        .createQueryBuilder('seriesPosts')
-        .leftJoinAndSelect('seriesPosts.series', 'series')
-        .where('seriesPosts.postId = :id', { id: parent.id })
-        .getOne();
-      if (!seriesPost) return null;
-      return seriesPost.series;
+    series: async (post: Post) => {
+      const seriesPost = await SeriesPosts.findOne({
+        where: {
+          postId: post.id,
+        },
+        relations: ['series'],
+      });
+      return seriesPost;
     },
     comments: (post: Post, __, { loaders }) => {
       if (!post.comments) return post.comments;

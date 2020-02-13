@@ -15,6 +15,7 @@ export const typeDef = gql`
     userToken: UserToken!
     posts: [Post!]
     postSave: [PostSave]
+    seriesList: [Series]
   }
   type PostSave {
     id: ID!
