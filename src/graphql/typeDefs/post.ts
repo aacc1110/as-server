@@ -23,6 +23,7 @@ export const typeDef = gql`
     saved: Boolean
     comments: [Comment]
     commentsCount: Int
+    series: Series
   }
   type Tag {
     id: ID!
@@ -41,6 +42,7 @@ export const typeDef = gql`
     urlPath: String
     tags: [String]
     imageUrl: [String]
+    seriesId: ID
   }
 
   extend type Query {

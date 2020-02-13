@@ -17,7 +17,6 @@ import { Tag } from './Tag';
 import { Image } from './Image';
 import { Comment } from './Comment';
 import { PostScore } from './PostScore';
-import { PostLike } from './PostLike';
 import { PostSave } from './PostSave';
 
 @Entity('posts', { synchronize: true })
@@ -100,13 +99,6 @@ export class Post extends BaseEntity {
   })
   @JoinTable()
   postscore!: PostScore[];
-
-  // @OneToMany(() => PostLike, postlike => postlike.post, {
-  //   eager: true,
-  //   cascade: true,
-  // })
-  // @JoinTable()
-  // postlike!: PostLike[];
 
   @OneToMany(() => PostSave, postsave => postsave.post, {
     eager: true,
