@@ -30,10 +30,10 @@ export const typeDef = gql`
   }
 `;
 
-type CreateSeriesArgs = {
+export interface CreateSeriesArgs {
   name: string;
   urlPath: string;
-};
+}
 
 type AppendToSeriesArgs = {
   postId: string;
