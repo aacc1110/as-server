@@ -22,6 +22,10 @@ export const resolvers: IResolvers = {
     },
   },
   User: {
+    // posts: async (user: User) => {
+    //   const posts = await Post.find({ userId: user.id });
+    //   return posts;
+    // },
     postSave: async (user: User, __, { userId }) => {
       if (!userId) {
         throw new AuthenticationError('Not Logged In');

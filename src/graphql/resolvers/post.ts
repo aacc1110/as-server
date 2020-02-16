@@ -27,15 +27,6 @@ export const resolvers: IResolvers = {
       }
       return post.user;
     },
-    series: async (post: Post) => {
-      const seriesPost = await SeriesPosts.findOne({
-        where: {
-          postId: post.id,
-        },
-        relations: ['series'],
-      });
-      return seriesPost;
-    },
     comments: (post: Post, __, { loaders }) => {
       if (!post.comments) return post.comments;
       // return loaders.comments.load(post.id);
@@ -44,6 +35,20 @@ export const resolvers: IResolvers = {
     commentsCount: (post: Post) => {
       return Comment.count({ postId: post.id, deleted: false });
     },
+    series: async (post: Post) => {
+      return await SeriesPosts.findOne({ postId: post.id });
+    },
+    // series: async (post: Post) => {
+    //   const seriesPostsRepo = getRepository(SeriesPosts);
+    //   const seriesPosts = await seriesPostsRepo
+    //     .createQueryBuilder('seriesPosts')
+    //     .leftJoinAndSelect(Series, 'series', 'seriesPosts.seriesId = seriesPosts.id')
+    //     .where('seriesPosts.postId = :id', { id: post.id })
+    //     .getOne();
+    //   if (!seriesPosts) return null;
+    //   return seriesPosts.series;
+    // },
+
     liked: async (post: Post, __, { userId }) => {
       if (!userId) return false;
       const liked = await PostLike.findOne({ postId: post.id, userId });

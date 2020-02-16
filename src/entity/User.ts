@@ -20,6 +20,7 @@ import { PostLike } from './PostLike';
 import { PostScore } from './PostScore';
 import { PostSave } from './PostSave';
 import { PostRead } from './PostRead';
+import { Series } from './Series';
 
 @Entity('users', { synchronize: true })
 export class User extends BaseEntity {
@@ -70,6 +71,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => PostSave, postsave => postsave.user, { cascade: true })
   postsave!: PostSave[];
+
+  @OneToMany(() => Series, series => series.user, { cascade: true })
+  series!: Series[];
 
   @BeforeInsert()
   async hashedPasswordInsert() {

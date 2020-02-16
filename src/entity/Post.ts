@@ -18,6 +18,7 @@ import { Image } from './Image';
 import { Comment } from './Comment';
 import { PostScore } from './PostScore';
 import { PostSave } from './PostSave';
+import { SeriesPosts } from './SeriesPosts';
 
 @Entity('posts', { synchronize: true })
 export class Post extends BaseEntity {
@@ -106,4 +107,10 @@ export class Post extends BaseEntity {
   })
   @JoinTable()
   postsave!: PostSave[];
+
+  @OneToMany(() => SeriesPosts, seriesposts => seriesposts.post, {
+    cascade: true,
+  })
+  @JoinTable()
+  seriesposts!: SeriesPosts;
 }

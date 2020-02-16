@@ -9,9 +9,11 @@ import {
   ManyToOne,
   getRepository,
   BaseEntity,
+  OneToMany,
 } from 'typeorm';
 import DataLoader from 'dataloader';
 import { User } from './User';
+import { SeriesPosts } from './SeriesPosts';
 
 @Entity('series', {
   synchronize: true,
@@ -40,9 +42,13 @@ export class Series extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
+  @OneToMany(() => SeriesPosts, seriesposts => seriesposts.series, { cascade: true })
+  @JoinColumn()
+  seriesposts!: SeriesPosts[];
+
   @Column('uuid')
   userId!: string;
-  @ManyToOne(() => User, { cascade: true, eager: true })
+  @ManyToOne(() => User, user => user.series, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn()
   user!: User;
 }

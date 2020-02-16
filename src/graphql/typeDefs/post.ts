@@ -18,8 +18,8 @@ export const typeDef = gql`
     user: User
     tags: [Tag]
     images: [Image]
-    liked: Boolean
     readIt: Boolean
+    liked: Boolean
     saved: Boolean
     comments: [Comment]
     commentsCount: Int

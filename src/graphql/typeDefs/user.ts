@@ -13,7 +13,7 @@ export const typeDef = gql`
     password: String
     userProfile: UserProfile
     userToken: UserToken!
-    posts: [Post!]
+    posts: [Post]
     postSave: [PostSave]
     seriesList: [Series]
   }

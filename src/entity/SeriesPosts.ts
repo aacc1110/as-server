@@ -33,14 +33,14 @@ export class SeriesPosts extends BaseEntity {
   @Index()
   @Column('uuid')
   postId!: string;
-  @ManyToOne(() => Post, { cascade: true, eager: true })
+  @ManyToOne(() => Post, post => post.seriesposts, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn()
   post!: Post;
 
   @Index()
   @Column('uuid')
   seriesId!: string;
-  @ManyToOne(() => Series, { cascade: true, eager: true })
+  @ManyToOne(() => Series, series => series.seriesposts, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn()
   series!: Series;
 }
