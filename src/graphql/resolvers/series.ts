@@ -45,14 +45,13 @@ export const resolvers: IResolvers = {
     //   if (!seriesPost) return null;
     //   return seriesPost.post.thumbnail;
     // },
-    postsCount: async (parent: Series) => {
+    postsCount: async (series: Series) => {
       const repo = getRepository(SeriesPosts);
-      const count = await repo.count({
+      return await repo.count({
         where: {
-          seriesId: parent.id,
+          seriesId: series.id,
         },
       });
-      return count;
     },
   },
   Query: {
