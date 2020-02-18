@@ -16,8 +16,9 @@ import { PostScore } from '../../entity/PostScore';
 import hash from '../../lib/hash';
 import { PostRead } from '../../entity/PostRead';
 import { PostSave } from '../../entity/PostSave';
-import { SeriesPosts, appendToSeries } from '../../entity/SeriesPosts';
 import { Series } from '../../entity/Series';
+import { SeriesPosts } from '../../entity/SeriesPosts';
+import { appendToSeries } from '../../lib/DataLoader/dataLoader';
 
 export const resolvers: IResolvers = {
   Post: {

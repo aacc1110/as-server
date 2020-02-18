@@ -28,11 +28,11 @@ async function getSeriesIfValid(seriesId: string, userId: string | null) {
 
 export const resolvers: IResolvers = {
   Series: {
-    seriesPosts: async (parent: Series, _: any, { loaders }) => {
-      return loaders.seriesPosts.load(parent.id);
+    seriesPosts: async (series: Series, __, { loaders }) => {
+      return loaders.seriesPosts.load(series.id);
     },
-    user: async (parent: Series, _: any, { loaders }) => {
-      return loaders.user.load(parent.userId);
+    user: async (series: Series, __, { loaders }) => {
+      return loaders.user.load(series.userId);
     },
     // thumbnail: async (parent: Series) => {
     //   const seriesPostRepo = getRepository(SeriesPosts);
@@ -47,11 +47,8 @@ export const resolvers: IResolvers = {
     // },
     postsCount: async (series: Series) => {
       const repo = getRepository(SeriesPosts);
-      return await repo.count({
-        where: {
-          seriesId: series.id,
-        },
-      });
+      const count = await repo.count({ seriesId: series.id });
+      return count;
     },
   },
   Query: {
@@ -66,7 +63,7 @@ export const resolvers: IResolvers = {
         .createQueryBuilder('series')
         .leftJoinAndSelect('series.user', 'user')
         .where('user.useremail = :useremail', { useremail })
-        .andWhere('series.url_slug = :url_slug', { urlPath })
+        .andWhere('series.urlPath = :urlPath', { urlPath })
         .getOne();
 
       return series;
