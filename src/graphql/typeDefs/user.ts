@@ -17,11 +17,6 @@ export const typeDef = gql`
     postSave: [PostSave]
     seriesList: [Series]
   }
-  type PostSave {
-    id: ID!
-    user: User
-    post: Post
-  }
   type UserProfile {
     id: ID!
     about: String

@@ -109,6 +109,7 @@ export class Post extends BaseEntity {
   postsave!: PostSave[];
 
   @OneToMany(() => SeriesPosts, seriesposts => seriesposts.post, {
+    eager: true,
     cascade: true,
   })
   @JoinTable()

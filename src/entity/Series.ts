@@ -7,11 +7,9 @@ import {
   CreateDateColumn,
   JoinColumn,
   ManyToOne,
-  getRepository,
   BaseEntity,
   OneToMany,
 } from 'typeorm';
-import DataLoader from 'dataloader';
 import { User } from './User';
 import { SeriesPosts } from './SeriesPosts';
 
@@ -52,21 +50,3 @@ export class Series extends BaseEntity {
   @JoinColumn()
   user!: User;
 }
-
-export const createSeriesListLoader = () =>
-  new DataLoader<string, Series[]>(async userIds => {
-    const repo = getRepository(Series);
-    const seriesList = await repo
-      .createQueryBuilder('series')
-      .where('fk_user_id IN (:...userIds)', { userIds })
-      .getMany();
-    const seriesListMap: {
-      [key: string]: Series[];
-    } = {};
-    userIds.forEach(userId => (seriesListMap[userId] = []));
-    seriesList.forEach(series => {
-      seriesListMap[series.userId].push(series);
-    });
-    const ordered = userIds.map(userId => seriesListMap[userId]);
-    return ordered;
-  });

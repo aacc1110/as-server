@@ -16,8 +16,9 @@ import { PostScore } from '../../entity/PostScore';
 import hash from '../../lib/hash';
 import { PostRead } from '../../entity/PostRead';
 import { PostSave } from '../../entity/PostSave';
-import { SeriesPosts, appendToSeries } from '../../entity/SeriesPosts';
 import { Series } from '../../entity/Series';
+import { SeriesPosts } from '../../entity/SeriesPosts';
+import { appendToSeries } from '../../lib/DataLoader/dataLoader';
 
 export const resolvers: IResolvers = {
   Post: {
@@ -78,9 +79,15 @@ export const resolvers: IResolvers = {
   Query: {
     post: async (_, { userEmail, urlPath }) => {
       const post = await createQueryBuilder(Post, 'post')
-        .leftJoinAndSelect(User, 'user', 'post.user = user.id')
+        .leftJoinAndSelect(User, 'user', 'post.userId = user.id')
         .where('post.urlPath = :urlPath AND user.email = :userEmail', { urlPath, userEmail })
         .getOne();
+      // const post = await Post.findOne({
+      //   where: {
+      //     email: userEmail,
+      //     urlPath,
+      //   },
+      // });
 
       if (!post) {
         throw new ApolloError('Post is not found', 'NOT_FOUND');

@@ -35,7 +35,11 @@ export const typeDef = gql`
     imageUrl: String!
     post: Post!
   }
-
+  type PostSave {
+    id: ID!
+    user: User
+    post: Post
+  }
   input PostInput {
     title: String!
     body: String!
