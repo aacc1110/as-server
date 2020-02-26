@@ -9,11 +9,11 @@ export const typeDef = gql`
     urlPath: String
     createdAt: Date
     updatedAt: Date
-    seriesPosts: [SeriesPost]
+    seriesPosts: [SeriesPosts]
     thumbnail: String
     postsCount: Int
   }
-  type SeriesPost {
+  type SeriesPosts {
     id: ID!
     index: Int
     post: Post
