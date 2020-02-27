@@ -19,6 +19,7 @@ import { PostSave } from '../../entity/PostSave';
 import { Series } from '../../entity/Series';
 import { SeriesPosts } from '../../entity/SeriesPosts';
 import { appendToSeries } from '../../lib/DataLoader/dataLoader';
+import { normalize } from '../../lib/utils';
 
 export const resolvers: IResolvers = {
   Post: {
@@ -119,6 +120,40 @@ export const resolvers: IResolvers = {
       const posts = await query.getMany();
       // console.log('Posts', posts);
       return posts;
+    },
+    mainPosts: async () => {},
+
+    trendPosts: async (_, { offset = 0, limit = 20, timeframe = 'week' }) => {
+      const timeframes: [string, number][] = [['day', 1], ['week', 7], ['month', 30]];
+      const selectedTimeframe = timeframes.find(([text]) => text === timeframe);
+      if (!selectedTimeframe) {
+        throw new ApolloError('Invalid timeframe', 'BAD_REQUEST');
+      }
+      const interval = selectedTimeframe[1];
+
+      const query = getRepository(PostScore)
+        .createQueryBuilder('postScore')
+        .select('postScore.postId', 'postId')
+        .addSelect('SUM(score)', 'score')
+        .where(`postScore.createdAt > now()::DATE - ${interval} AND postScore.postId IS NOT NULL`)
+        .groupBy('postScore.postId')
+        .orderBy('score', 'DESC')
+        .addOrderBy('postScore.postId', 'DESC')
+        .limit(limit);
+
+      if (offset) {
+        query.offset(offset);
+      }
+
+      const rows = await query.getRawMany();
+
+      console.log(rows);
+
+      const ids = rows.map(row => row.postId);
+      const posts = await getRepository(Post).findByIds(ids);
+      const normalized = normalize(posts);
+      const ordered = ids.map(id => normalized[id]);
+      return ordered;
     },
     tag: async (_, tag) => {
       const posts = await getRepository(Tag)

@@ -12,7 +12,7 @@ import {
 import { User } from './User';
 import { Post } from './Post';
 
-@Entity('post_score', { synchronize: true })
+@Entity('post_scores', { synchronize: true })
 export class PostScore extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
