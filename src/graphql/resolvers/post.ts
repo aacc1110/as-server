@@ -78,10 +78,11 @@ export const resolvers: IResolvers = {
     },
   },
   Query: {
-    post: async (_, { userEmail, urlPath }) => {
+    post: async (_, { useremail, urlPath }) => {
+      console.log('useremail:', useremail);
       const post = await createQueryBuilder(Post, 'post')
         .leftJoinAndSelect(User, 'user', 'post.userId = user.id')
-        .where('post.urlPath = :urlPath AND user.email = :userEmail', { urlPath, userEmail })
+        .where('post.urlPath = :urlPath AND user.email = :useremail', { urlPath, useremail })
         .getOne();
       // const post = await Post.findOne({
       //   where: {

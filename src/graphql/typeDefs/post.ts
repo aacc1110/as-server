@@ -50,7 +50,7 @@ export const typeDef = gql`
   }
 
   extend type Query {
-    post(id: ID, userEmail: String, urlPath: String): Post
+    post(id: ID, useremail: String, urlPath: String): Post
     posts(cursor: ID, take: Int): [Post]
     mainPosts(id: ID): [Post]
     trendPosts(offset: Int, limit: Int, timeframe: String): [Post]
