@@ -8,7 +8,7 @@ import { Series } from '../../entity/Series';
 import { SeriesPosts } from '../../entity/SeriesPosts';
 
 export const createUserLoader = () =>
-  new DataLoader<string, User>(async userIds => {
+  new DataLoader<string, User>(async (userIds: readonly string[]) => {
     const users = await createQueryBuilder(User, 'user')
       .whereInIds(userIds)
       .getMany();
@@ -18,9 +18,23 @@ export const createUserLoader = () =>
 
     // return User.findByIds(ids);
   });
+// const commentLoadFn = async (postIds: any) => {
+//   const comments = await Comment.find({
+//     where: {
+//       postId: In(postIds),
+//       level: 0,
+//       deleted: false,
+//     },
+//     order: {
+//       createdAt: 'DESC',
+//     },
+//   });
+//   return postIds.map((id: any) => comments.filter((c: any) => c.postId === id));
+// };
 
+// export const createCommentsLoader = () => new DataLoader(commentLoadFn);
 export const createCommentsLoader = () =>
-  new DataLoader<string, Comment[]>(async postIds => {
+  new DataLoader<string, Comment[]>(async (postIds: readonly string[]) => {
     const posts = await createQueryBuilder(Post, 'post')
       .leftJoinAndSelect('post.comments', 'comment')
       .whereInIds(postIds)
@@ -53,7 +67,7 @@ export const createCommentsLoader = () =>
 //   });
 
 export const createSeriesListLoader = () =>
-  new DataLoader<string, Series[]>(async userIds => {
+  new DataLoader<string, Series[]>(async (userIds: readonly string[]) => {
     const repo = getRepository(Series);
     const seriesList = await repo
       .createQueryBuilder('series')
@@ -71,7 +85,7 @@ export const createSeriesListLoader = () =>
   });
 
 export const createSeriesPostsLoader = () =>
-  new DataLoader<string, SeriesPosts[]>(async seriesIds => {
+  new DataLoader<string, SeriesPosts[]>(async (seriesIds: readonly string[]) => {
     const repo = getRepository(SeriesPosts);
     const seriesPosts = await repo
       .createQueryBuilder('seriesPosts')
